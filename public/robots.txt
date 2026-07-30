@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /checkout
+Disallow: /checkout/
+Disallow: /cart
+Disallow: /dashboard
+
+Sitemap: https://bloomandblossom.in/sitemap.xml

@@ -1,0 +1,212 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-primary: #D4A373;
+  --color-accent: #E9EDC9;
+  --color-rose-light: #FAD2E1;
+  --color-dark: #4A4E69;
+  --color-bg: #FFF9F9;
+  --color-text: #5E503F;
+  --color-shadow: rgba(0, 0, 0, 0.05);
+
+  --color-bloom-pink: #FAD2E1;
+  --color-bloom-rose: #D4A373;
+  --color-bloom-sage: #E9EDC9;
+  --color-bloom-cream: #FFF9F9;
+}
+
+:root.theme-luxury, .theme-luxury {
+  /* Luxury Blossom (Romantic, Soft & Artisanal Theme) Overrides */
+  --font-serif: "Cormorant Garamond", "Playfair Display", serif;
+  --font-sans: "Inter", "Plus Jakarta Sans", sans-serif;
+  
+  --color-primary: #B97A81;       /* Exquisite warm dusky rose */
+  --color-accent: #E5C3C6;        /* Softest pastel rose blush */
+  --color-rose-light: #FFF0F2;    /* Soft floral cream */
+  --color-dark: #352224;          /* Luxurious deep rose-chocolate */
+  --color-bg: #FFF7F7;            /* Soft romantic blush cream */
+  --color-text: #4E3639;          /* Deep warm wood/aubergine for text */
+  --color-shadow: rgba(185, 122, 129, 0.08);
+
+  --color-bloom-pink: #FFF0F2;
+  --color-bloom-rose: #B97A81;
+  --color-bloom-sage: #E5C3C6;
+  --color-bloom-cream: #FFF7F7;
+}
+
+:root.theme-sage, .theme-sage {
+  /* Sage Meadow (Elegant, Organic & Botanical) Overrides */
+  --font-serif: "Cormorant Garamond", "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+  
+  --color-primary: #556B2F;       /* Elegant olive green */
+  --color-accent: #8F9779;        /* Sophisticated soft sage */
+  --color-rose-light: #F4F6F0;    /* Soft eucalyptus mist */
+  --color-dark: #2F3E32;          /* Luxurious deep evergreen forest */
+  --color-bg: #F9FAF7;            /* Crisp pale botanical mist */
+  --color-text: #243026;          /* Deep rich pine bark for text */
+  --color-shadow: rgba(85, 107, 47, 0.08);
+
+  --color-bloom-pink: #F4F6F0;
+  --color-bloom-rose: #556B2F;
+  --color-bloom-sage: #8F9779;
+  --color-bloom-cream: #F9FAF7;
+}
+
+:root.theme-dahlia, .theme-dahlia {
+  /* Dahlia Glow (Warm, Golden Sunset & Radiant Artisanal) Overrides */
+  --font-serif: "Cormorant Garamond", "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+  
+  --color-primary: #D47A55;       /* Warm radiant terracotta dahlia */
+  --color-accent: #EBB692;        /* Golden honey apricot peach */
+  --color-rose-light: #FFF8F3;    /* Soft glowing linen white */
+  --color-dark: #4A2616;          /* Earthy mahogany wood */
+  --color-bg: #FFFBF7;            /* Warm cream sunset */
+  --color-text: #533325;          /* Rich earthy cocoa */
+  --color-shadow: rgba(212, 122, 85, 0.08);
+
+  --color-bloom-pink: #FFF8F3;
+  --color-bloom-rose: #D47A55;
+  --color-bloom-sage: #EBB692;
+  --color-bloom-cream: #FFFBF7;
+}
+
+@layer base {
+  body {
+    @apply bg-bloom-cream text-text font-sans transition-colors duration-500;
+  }
+}
+
+.floral-gradient {
+  background: radial-gradient(circle at 10% 20%, rgba(253, 242, 248, 1) 0%, rgba(255, 241, 242, 1) 100%);
+}
+
+.glass-morphism {
+  @apply backdrop-blur-md bg-white/70 border border-white/20;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+section {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 1000px;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+}
+
+/* Custom scrollbar for mobile optimization */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-bloom-rose/20 rounded-full;
+}
+
+@media (max-width: 640px) {
+  .container {
+    @apply px-4;
+  }
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom luxury accents */
+.theme-luxury .floral-gradient {
+  background: radial-gradient(circle at 10% 20%, #FFF7F7 0%, #FFF0F2 100%);
+}
+
+.theme-luxury .luxury-card {
+  @apply bg-white/70 border border-bloom-rose/10 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-md;
+}
+
+.theme-luxury .luxury-divider {
+  background: linear-gradient(to right, transparent, rgba(185, 122, 129, 0.2), transparent);
+  height: 1px;
+}
+
+.theme-luxury .luxury-text-shimmer {
+  background: linear-gradient(135deg, #B97A81 0%, #D4A373 50%, #B97A81 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+
+@keyframes shimmer {
+  to { background-position: 200% center; }
+}
+
+/* Custom Sage accents */
+.theme-sage .floral-gradient {
+  background: radial-gradient(circle at 10% 20%, #F9FAF7 0%, #F4F6F0 100%);
+}
+
+.theme-sage .luxury-card {
+  @apply bg-white/80 border border-bloom-rose/10 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-md;
+}
+
+.theme-sage .luxury-divider {
+  background: linear-gradient(to right, transparent, rgba(85, 107, 47, 0.2), transparent);
+  height: 1px;
+}
+
+.theme-sage .luxury-text-shimmer {
+  background: linear-gradient(135deg, #556B2F 0%, #8F9779 50%, #556B2F 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+
+/* Custom Dahlia accents */
+.theme-dahlia .floral-gradient {
+  background: radial-gradient(circle at 10% 20%, #FFFBF7 0%, #FFF8F3 100%);
+}
+
+.theme-dahlia .luxury-card {
+  @apply bg-white/80 border border-bloom-rose/10 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-md;
+}
+
+.theme-dahlia .luxury-divider {
+  background: linear-gradient(to right, transparent, rgba(212, 122, 85, 0.2), transparent);
+  height: 1px;
+}
+
+.theme-dahlia .luxury-text-shimmer {
+  background: linear-gradient(135deg, #D47A55 0%, #EBB692 50%, #D47A55 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+

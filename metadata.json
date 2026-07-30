@@ -1,0 +1,8 @@
+{
+  "name": "The Bloom and Blossom",
+  "description": "A premium hair accessories e-commerce store featuring hand-crafted bows, scrunchies, and clips with a soft, floral aesthetic.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
