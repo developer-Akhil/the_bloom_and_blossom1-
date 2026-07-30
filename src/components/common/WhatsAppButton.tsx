@@ -14,13 +14,13 @@ const DEFAULT_WELCOME_MESSAGES: ChatMessage[] = [
   {
     id: 'welcome-1',
     sender: 'bot',
-    text: 'Hello! 👋 Welcome to Bloom Artisanal Florals & Gifts.',
+    text: 'Hello! 👋 Welcome to The Bloom and Blossom — Handcrafted Hair Accessories & Gifts.',
     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
   },
   {
     id: 'welcome-2',
     sender: 'bot',
-    text: 'How can we help you today? You can ask about custom bouquets, track your order, or chat directly with our team on WhatsApp!',
+    text: 'How can we help you today? You can ask about custom bows & accessories, track your order, or chat directly with our team on WhatsApp!',
     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
   },
 ];
@@ -30,10 +30,22 @@ export function WhatsAppButton() {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     try {
-      const saved = localStorage.getItem('bloom_chat_messages');
+      // Clear old key if present to purge legacy welcome message
+      localStorage.removeItem('bloom_chat_messages');
+      const saved = localStorage.getItem('bloom_chat_messages_v2');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((m: ChatMessage) => ({
+            ...m,
+            text: m.text
+              .replace(/Bloom Artisanal Florals & Gifts/g, 'The Bloom and Blossom — Handcrafted Hair Accessories & Gifts')
+              .replace(/Bloom Artisanal Florals/g, 'The Bloom and Blossom')
+              .replace(/custom bouquet/gi, 'custom bow or accessory')
+              .replace(/floral arrangement/gi, 'hair accessory')
+              .replace(/floral consultants/gi, 'accessories team')
+          }));
+        }
       }
     } catch (e) {
       console.error("Failed to load saved chat history:", e);
@@ -46,7 +58,7 @@ export function WhatsAppButton() {
 
   useEffect(() => {
     try {
-      localStorage.setItem('bloom_chat_messages', JSON.stringify(messages));
+      localStorage.setItem('bloom_chat_messages_v2', JSON.stringify(messages));
     } catch (e) {
       console.error("Failed to save chat history:", e);
     }
@@ -75,12 +87,12 @@ export function WhatsAppButton() {
       return "You can check your order status anytime under your Account Dashboard! If you have your Order ID, feel free to share it here or contact us on WhatsApp for live tracking.";
     } else if (lower.includes('delivery') || lower.includes('ship') || lower.includes('time')) {
       return "We offer same-day delivery for local orders placed before 2 PM! Express shipping options are also available at checkout.";
-    } else if (lower.includes('custom') || lower.includes('bouquet') || lower.includes('flower')) {
-      return "We love creating bespoke floral arrangements! You can request a custom bouquet via our Contact page or message us directly on WhatsApp to share your inspiration images.";
+    } else if (lower.includes('custom') || lower.includes('bow') || lower.includes('clip') || lower.includes('hair')) {
+      return "We love creating custom handcrafted hair accessories! You can request custom bows or clips via our Contact page or message us directly on WhatsApp to share your customization ideas.";
     } else if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey')) {
-      return "Hello there! Wonderful to meet you. Let us know what floral arrangement or gift you're looking for!";
+      return "Hello there! Wonderful to meet you. Let us know what handcrafted bows, clips, or hair accessories you are looking for!";
     } else {
-      return "Thanks for your message! Our floral consultants are ready to assist. Click 'Open in WhatsApp' below to continue this chat directly with our team!";
+      return "Thanks for your message! Our team is ready to assist. Click 'Open in WhatsApp' below to continue this chat directly with us!";
     }
   };
 
@@ -155,7 +167,7 @@ export function WhatsAppButton() {
                   <MessageCircle size={20} />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm leading-tight">Bloom Customer Support</h3>
+                  <h3 className="font-semibold text-sm leading-tight">Bloom &amp; Blossom Customer Support</h3>
                   <p className="text-[11px] text-green-100 flex items-center gap-1 mt-0.5">
                     <span className="w-2 h-2 rounded-full bg-green-300 inline-block"></span>
                     Online & Ready to Help
@@ -248,10 +260,10 @@ export function WhatsAppButton() {
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickPrompt("Can I order a custom arrangement?")}
+                onClick={() => handleQuickPrompt("Can I order custom hair accessories?")}
                 className="text-[11px] whitespace-nowrap bg-gray-100 hover:bg-bloom-pink hover:text-bloom-rose text-gray-600 px-2.5 py-1 rounded-full transition-colors border border-gray-200 shrink-0"
               >
-                💐 Custom Bouquets
+                🎀 Custom Accessories
               </button>
             </div>
 
