@@ -154,6 +154,41 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
         return asset;
       });
 
+      // Merge any newly added disk assets from import.meta.glob
+      const diskFolders = (import.meta as any).glob('../../public/images/collections/**/*', { eager: true });
+      const productImages = (import.meta as any).glob('../../public/images/product_images/*', { eager: true });
+      const bestSellers = (import.meta as any).glob('../../public/images/our_best_sellers/*', { eager: true });
+      const homeImages = (import.meta as any).glob('../../public/images/home_images/*', { eager: true });
+      const logoImages = (import.meta as any).glob('../../public/images/logo/*', { eager: true });
+      
+      const allDisks = { ...diskFolders, ...productImages, ...bestSellers, ...homeImages, ...logoImages };
+      
+      Object.keys(allDisks).forEach((path, idx) => {
+        if (path.endsWith('.keep')) return;
+        const url = path.replace(/^.*\/public/, '');
+        const parts = path.split('/');
+        const filename = parts.pop() || '';
+        const folderName = parts.pop() || '';
+        
+        let folderId = 'product_images';
+        if (path.includes('collections')) folderId = `collections/${folderName.toLowerCase()}`;
+        if (path.includes('our_best_sellers')) folderId = 'our_best_sellers';
+        if (path.includes('home_images')) folderId = 'home_images';
+        if (path.includes('logo')) folderId = 'logo';
+
+        if (!updatedAssets.some(a => a.file_url === url)) {
+          needsUpdate = true;
+          updatedAssets.push({
+            id: `builtin_disk_${idx}_${Date.now()}`,
+            folder_id: folderId,
+            file_name: filename,
+            file_url: url,
+            created_at: new Date().toISOString(),
+            is_active: true
+          });
+        }
+      });
+
       if (needsUpdate) {
         setAssets(updatedAssets);
         localStorage.setItem('bloom_assets', JSON.stringify(updatedAssets));

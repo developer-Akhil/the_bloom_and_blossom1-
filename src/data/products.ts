@@ -56,7 +56,12 @@ export function resolveImageUrl(url: string): string {
   const filename = (parts.pop() || '').toLowerCase();
   const parentFolder = (parts.pop() || '').toLowerCase();
 
-  // High-end curated direct mapping for exact known assets to ensure flawless premium storefront visuals
+  // 1. If the file actually exists in our local filesystem, use it!
+  if (availableLocalImages.has(clean)) {
+    return clean;
+  }
+
+  // 2. High-end curated direct mapping for missing fallback assets
   const curatedMap: Record<string, string> = {
     '/images/product_images/hairbands.jpg': 'https://images.unsplash.com/photo-1589156280159-27698a70f29e?q=80&w=800&auto=format&fit=crop',
     '/images/product_images/headbands.jpg': 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?q=80&w=800&auto=format&fit=crop',
@@ -75,11 +80,6 @@ export function resolveImageUrl(url: string): string {
 
   if (curatedMap[clean]) {
     return curatedMap[clean];
-  }
-
-  // If the file actually exists in our local filesystem, use it!
-  if (availableLocalImages.has(clean)) {
-    return clean;
   }
 
   // A. Sunglasses Matching
