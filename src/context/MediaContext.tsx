@@ -43,14 +43,22 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
     if (savedFolders) {
       let currentFolders: MediaFolder[] = JSON.parse(savedFolders);
       const staleFolders = ['plan_scrunchies', 'plain_scrunchies', 'printed_scrunchies', 'printed_bows'];
-      const filteredFolders = currentFolders.filter(f => !staleFolders.includes(f.name));
-      
-      if (currentFolders.length !== filteredFolders.length) {
-         setFolders(filteredFolders);
-         localStorage.setItem('bloom_folders', JSON.stringify(filteredFolders));
-      } else {
-         setFolders(currentFolders);
+      let updatedFolders = currentFolders
+        .filter(f => !staleFolders.includes(f.name))
+        .map(f => {
+          if (f.id === 'collections/embroidery_bows' || f.name === 'Embroidery Bows') {
+            return { ...f, id: 'collections/embroideries', name: 'Embroideries' };
+          }
+          return f;
+        });
+
+      // Ensure 'collections/embroideries' exists in default system folders
+      if (!updatedFolders.some(f => f.id === 'collections/embroideries')) {
+        updatedFolders.push({ id: 'collections/embroideries', name: 'Embroideries', parent: 'collections', isSystem: true });
       }
+      
+      setFolders(updatedFolders);
+      localStorage.setItem('bloom_folders', JSON.stringify(updatedFolders));
     } else {
       const defaultFolders: MediaFolder[] = [
         { id: 'collections', name: 'Collections', parent: null, isSystem: true },
@@ -63,7 +71,7 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
         { id: 'collections/premium_doll_bows', name: 'Premium Doll Bows', parent: 'collections', isSystem: true },
         { id: 'collections/jewelled_bows', name: 'Jewelled Bows', parent: 'collections', isSystem: true },
         { id: 'collections/hairbands', name: 'Hairbands', parent: 'collections', isSystem: true },
-        { id: 'collections/embroidery_bows', name: 'Embroidery Bows', parent: 'collections', isSystem: true },
+        { id: 'collections/embroideries', name: 'Embroideries', parent: 'collections', isSystem: true },
         { id: 'collections/crochet_clips', name: 'Crochet Clips', parent: 'collections', isSystem: true },
         { id: 'collections/alligator_clips', name: 'Alligator Clips', parent: 'collections', isSystem: true },
         { id: 'collections/customised_name_sunglasses', name: 'Customised Name Sunglasses', parent: 'collections', isSystem: true },

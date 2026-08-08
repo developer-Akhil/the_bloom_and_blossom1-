@@ -34,8 +34,8 @@
     "public/images/product_images/customised_name_sunglasses.jpg": {
       "Name": "Customised Name Sunglasses"
     },
-    "public/images/product_images/embroidery_bows.jpg": {
-      "Name": "Embroidery Bows"
+    "public/images/product_images/embroideries.jpg": {
+      "Name": "Embroideries"
     },
     "public/images/product_images/hairbands.jpg": {
       "Name": "Hairbands"
@@ -839,9 +839,9 @@
         "isBestSeller": true
       }
     },
-    "Embroidery Bows": {
-      "public/images/collections/embroidery_bows/embroidery_name_tail_bow.jpg": {
-        "Code": "EB-ETB-RED-001",
+    "Embroideries": {
+      "public/images/collections/embroideries/embroidery_name_tail_bow.jpg": {
+        "Code": "ES-ETB-RED-001",
         "Name": "Embroidery Name Tail Bow",
         "Price": "200",
         "rating": "4.5",
@@ -850,8 +850,8 @@
         "isBestSeller": true
       },
       "Embroidery Tail Bows": {
-        "public/images/collections/embroidery_bows/embroidery_tail_bows/red.jpg": {
-          "Code": "EB-ETB-RED-001",
+        "public/images/collections/embroideries/embroidery_tail_bows/red.jpg": {
+          "Code": "ES-ETB-RED-001",
           "Name": "Red",
           "Price": "170",
           "rating": "4.5",
@@ -859,8 +859,8 @@
           "isCustomizable": false,
           "isBestSeller": true
         },
-        "public/images/collections/embroidery_bows/embroidery_tail_bows/white.jpg": {
-          "Code": "EB-ETB-WHT-002",
+        "public/images/collections/embroideries/embroidery_tail_bows/white.jpg": {
+          "Code": "ES-ETB-WHT-002",
           "Name": "White",
           "Price": "170",
           "rating": "4.4",
@@ -868,8 +868,8 @@
           "isCustomizable": false,
           "isBestSeller": true
         },
-        "public/images/collections/embroidery_bows/embroidery_tail_bows/black.jpg": {
-          "Code": "EB-ETB-BLK-003",
+        "public/images/collections/embroideries/embroidery_tail_bows/black.jpg": {
+          "Code": "ES-ETB-BLK-003",
           "Name": "Black",
           "Price": "170",
           "rating": "4.2",
@@ -877,7 +877,7 @@
           "isCustomizable": false,
           "isBestSeller": true
         },
-        "public/images/collections/embroidery_bows/embroidery_tail_bows/brown.jpg": {
+        "public/images/collections/embroideries/embroidery_tail_bows/brown.jpg": {
           "Code": "EB-ETB-BRN-004",
           "Name": "Brown",
           "Price": "170",
@@ -886,8 +886,8 @@
           "isCustomizable": false,
           "isBestSeller": true
         },
-        "public/images/collections/embroidery_bows/embroidery_tail_bows/skyblue.jpg": {
-          "Code": "EB-ETB-SKB-005",
+        "public/images/collections/embroideries/embroidery_tail_bows/skyblue.jpg": {
+          "Code": "ES-ETB-SKB-005",
           "Name": "Skyblue",
           "Price": "170",
           "rating": "4.4",
@@ -895,8 +895,8 @@
           "isCustomizable": false,
           "isBestSeller": true
         },
-        "public/images/collections/embroidery_bows/embroidery_tail_bows/yellow.jpg": {
-          "Code": "EB-ETB-YEL-006",
+        "public/images/collections/embroideries/embroidery_tail_bows/yellow.jpg": {
+          "Code": "ES-ETB-YEL-006",
           "Name": "Yellow",
           "Price": "170",
           "rating": "4.6",
@@ -904,8 +904,8 @@
           "isCustomizable": false,
           "isBestSeller": true
         },
-        "public/images/collections/embroidery_bows/embroidery_tail_bows/lavender_purple.jpg": {
-          "Code": "EB-ETB-LAV_PLE-007",
+        "public/images/collections/embroideries/embroidery_tail_bows/lavender_purple.jpg": {
+          "Code": "ES-ETB-LAV_PLE-007",
           "Name": "Lavender Purple",
           "Price": "170",
           "rating": "4.5",
@@ -914,8 +914,46 @@
           "isBestSeller": true
         }
       },
+	  "Embroidery Pins": {
+        "public/images/collections/embroideries/embroidery_pins/floral_border_pins.jpg": {
+          "Code": "ES-EP-FBC-001",
+          "Name": "Floral Border Pins",
+          "Price": "130",
+          "rating": "4.8",
+          "stock": 9,
+          "isCustomizable": false,
+          "isBestSeller": true
+        },
+        "public/images/collections/embroideries/embroidery_pins/pastel_daisy_pins.jpg": {
+          "Code": "ES-EP-PDC-002",
+          "Name": "Pastel Daisy Pins",
+          "Price": "130",
+          "rating": "4.7",
+          "stock": 4,
+          "isCustomizable": false,
+          "isBestSeller": true
+        },
+		"public/images/collections/embroideries/embroidery_pins/pearl_floral_pins.jpg": {
+          "Code": "ES-EP-PFC-003",
+          "Name": "Pearl Floral Pins",
+          "Price": "130",
+          "rating": "4.6",
+          "stock": 6,
+          "isCustomizable": false,
+          "isBestSeller": true
+        },
+		"public/images/collections/embroideries/embroidery_pins/rose_hair_pins.jpg": {
+          "Code": "ES-EP-RHC-004",
+          "Name": "Rose Hair Pins",
+          "Price": "130",
+          "rating": "4.2",
+          "stock": 5,
+          "isCustomizable": false,
+          "isBestSeller": true
+        }
+	  },
       "Embroidery Alligator Clips": {
-        "public/images/collections/embroidery_bows/embroidery_alligator_clips/peach.jpg": {
+        "public/images/collections/embroideries/embroidery_alligator_clips/peach.jpg": {
           "Code": "EB-EAC-PCE-001",
           "Name": "Peach",
           "Price": "120",
@@ -924,8 +962,8 @@
           "isCustomizable": false,
           "isBestSeller": true
         },
-        "public/images/collections/embroidery_bows/embroidery_alligator_clips/red.jpg": {
-          "Code": "EB-EAC-RED-002",
+        "public/images/collections/embroideries/embroidery_alligator_clips/red.jpg": {
+          "Code": "ES-EAC-RED-002",
           "Name": "Red",
           "Price": "120",
           "rating": "4.6",
@@ -933,7 +971,7 @@
           "isCustomizable": false,
           "isBestSeller": true
         },
-        "public/images/collections/embroidery_bows/embroidery_alligator_clips/pink.jpg": {
+        "public/images/collections/embroideries/embroidery_alligator_clips/pink.jpg": {
           "Code": "EB-EAC-PNK-003",
           "Name": "Pink",
           "Price": "120",
@@ -942,8 +980,8 @@
           "isCustomizable": false,
           "isBestSeller": true
         },
-        "public/images/collections/embroidery_bows/embroidery_alligator_clips/purple.jpg": {
-          "Code": "EB-EAC-PLE-004",
+        "public/images/collections/embroideries/embroidery_alligator_clips/purple.jpg": {
+          "Code": "ES-EAC-PLE-004",
           "Name": "Purple",
           "Price": "120",
           "rating": "4.5",
@@ -951,8 +989,8 @@
           "isCustomizable": false,
           "isBestSeller": true
         },
-        "public/images/collections/embroidery_bows/embroidery_alligator_clips/lavender_purple.jpg": {
-          "Code": "EB-EAC-LAV_PLE-005",
+        "public/images/collections/embroideries/embroidery_alligator_clips/lavender_purple.jpg": {
+          "Code": "ES-EAC-LAV_PLE-005",
           "Name": "Lavender Purple",
           "Price": "120",
           "rating": "4.7",
@@ -960,8 +998,8 @@
           "isCustomizable": false,
           "isBestSeller": true
         },
-        "public/images/collections/embroidery_bows/embroidery_alligator_clips/off_white.jpg": {
-          "Code": "EB-EAC-OWHT-006",
+        "public/images/collections/embroideries/embroidery_alligator_clips/off_white.jpg": {
+          "Code": "ES-EAC-OWHT-006",
           "Name": "Off White",
           "Price": "120",
           "rating": "4.6",
@@ -969,8 +1007,8 @@
           "isCustomizable": false,
           "isBestSeller": true
         },
-        "public/images/collections/embroidery_bows/embroidery_alligator_clips/skyblue.jpg": {
-          "Code": "EB-EAC-SKB-007",
+        "public/images/collections/embroideries/embroidery_alligator_clips/skyblue.jpg": {
+          "Code": "ES-EAC-SKB-007",
           "Name": "Skyblue",
           "Price": "120",
           "rating": "4.5",
@@ -978,8 +1016,8 @@
           "isCustomizable": false,
           "isBestSeller": true
         },
-        "public/images/collections/embroidery_bows/embroidery_alligator_clips/baby_pink.jpg": {
-          "Code": "EB-EAC-BPNK-002",
+        "public/images/collections/embroideries/embroidery_alligator_clips/baby_pink.jpg": {
+          "Code": "ES-EAC-BPNK-002",
           "Name": "Baby Pink",
           "Price": "120",
           "rating": "4.8",

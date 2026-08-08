@@ -11,7 +11,7 @@ export function OptimizedImage({
   alt, 
   className, 
   containerClassName,
-  fallbackSrc = 'https://picsum.photos/seed/bloom/800/800',
+  fallbackSrc = 'https://images.unsplash.com/photo-1605497746444-ac9db1340459?q=80&w=800&auto=format&fit=crop',
   ...props 
 }: OptimizedImageProps) {
   const [error, setError] = useState(false);

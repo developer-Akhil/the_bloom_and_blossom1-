@@ -6,7 +6,7 @@ export type Category =
   | 'Premium Doll Bows'
   | 'Jewelled Bows'
   | 'Hairbands'
-  | 'Embroidery Bows'
+  | 'Embroideries'
   | 'Crochet Clips'
   | 'Alligator Clips'
   | 'Alligator Bows'

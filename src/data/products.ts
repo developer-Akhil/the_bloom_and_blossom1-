@@ -10,7 +10,7 @@ export const categories: string[] = [
   'Bows',
   'Headbands',
   'Hairbands',
-  'Embroidery Bows',
+  'Embroideries',
   'Crochet Clips',
   'Customised Name Sunglasses',
   'Customised Caps'
@@ -51,11 +51,6 @@ export function resolveImageUrl(url: string): string {
   // Normalize path format
   const clean = url.startsWith('/') ? url : '/' + url;
   
-  // If the file actually exists in our local filesystem, use it!
-  if (availableLocalImages.has(clean)) {
-    return clean;
-  }
-  
   // Extract filename and parent folder to ensure laser-precision keyword matching without folder-name pollution
   const parts = clean.split('/');
   const filename = (parts.pop() || '').toLowerCase();
@@ -63,11 +58,6 @@ export function resolveImageUrl(url: string): string {
 
   // High-end curated direct mapping for exact known assets to ensure flawless premium storefront visuals
   const curatedMap: Record<string, string> = {
-    '/images/collections/jewelled_bows/velvet_stone_bows/maroon.jpg': 'https://images.unsplash.com/photo-1576243345690-4e4b79b63288?q=80&w=800&auto=format&fit=crop', // Elegant red velvet hair bow
-    '/images/collections/jewelled_bows/velvet_stone_bows/black.jpg': 'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop',  // Elegant black satin hair styling
-    '/images/collections/jewelled_bows/sliver.jpg': 'https://images.unsplash.com/photo-1632345031435-8797b2d58045?q=80&w=800&auto=format&fit=crop',                 // Glittering diamond luxury jewelry piece
-    '/images/collections/jewelled_bows/golden.jpg': 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=800&auto=format&fit=crop',                 // High-end gold crystal hair clips
-    '/images/collections/jewelled_bows/pink.jpg': 'https://images.unsplash.com/photo-1605497746444-ac9db1340459?q=80&w=800&auto=format&fit=crop',                  // Soft pink pastel silk ribbon bow
     '/images/product_images/hairbands.jpg': 'https://images.unsplash.com/photo-1589156280159-27698a70f29e?q=80&w=800&auto=format&fit=crop',
     '/images/product_images/headbands.jpg': 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?q=80&w=800&auto=format&fit=crop',
     '/images/product_images/jewelled_bows.jpg': 'https://images.unsplash.com/photo-1632345031435-8797b2d58045?q=80&w=800&auto=format&fit=crop',
@@ -75,8 +65,8 @@ export function resolveImageUrl(url: string): string {
     '/images/product_images/scrunchies.jpg': 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?q=80&w=800&auto=format&fit=crop',
     '/images/product_images/alligator_clips.jpg': 'https://images.unsplash.com/photo-1605497746444-ac9db1340459?q=80&w=800&auto=format&fit=crop',
     '/images/product_images/bows.jpg': 'https://images.unsplash.com/photo-1605497746444-ac9db1340459?q=80&w=800&auto=format&fit=crop',
-    '/images/product_images/embroidery_bows.jpg': 'https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=800&auto=format&fit=crop',
-    '/images/product_images/crochet_clips.jpg': 'https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=800&auto=format&fit=crop',
+    '/images/product_images/embroideries.jpg': 'https://images.unsplash.com/photo-1605497746444-ac9db1340459?q=80&w=800&auto=format&fit=crop',
+    '/images/product_images/crochet_clips.jpg': 'https://images.unsplash.com/photo-1605497746444-ac9db1340459?q=80&w=800&auto=format&fit=crop',
     '/images/product_images/customised_name_bows.jpg': 'https://images.unsplash.com/photo-1605497746444-ac9db1340459?q=80&w=800&auto=format&fit=crop',
     '/images/product_images/customised_name_sunglasses.jpg': 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?q=80&w=800&auto=format&fit=crop',
     '/images/product_images/customised_caps.jpg': 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?q=80&w=800&auto=format&fit=crop',
@@ -85,6 +75,11 @@ export function resolveImageUrl(url: string): string {
 
   if (curatedMap[clean]) {
     return curatedMap[clean];
+  }
+
+  // If the file actually exists in our local filesystem, use it!
+  if (availableLocalImages.has(clean)) {
+    return clean;
   }
 
   // A. Sunglasses Matching
@@ -112,7 +107,7 @@ export function resolveImageUrl(url: string): string {
 
   // E. Crochet & Embroidery Matching
   if (filename.includes('crochet') || filename.includes('embroidery') || parentFolder.includes('crochet') || parentFolder.includes('embroidery')) {
-    return 'https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=800&auto=format&fit=crop'; // Premium organic textile / weaving detail
+    return 'https://images.unsplash.com/photo-1605497746444-ac9db1340459?q=80&w=800&auto=format&fit=crop'; // Premium handcrafted accessories
   }
 
   // F. Bows & Clips Color-Based Matching
