@@ -73,6 +73,15 @@
         "isCustomizable": true,
         "isBestSeller": true
       },
+	  "public/images/collections/customised_name_bows/skyblue_long_tail_name_bow.jpg": {
+        "Code": "CNB-SLTN-001",
+        "Name": "Skyblue Long-Tail Name Bow",
+        "Price": "200",
+        "stock": 14,
+        "rating": "4.8",
+        "isCustomizable": true,
+        "isBestSeller": true
+      },
       "public/images/collections/customised_name_bows/customised_name_hairband.jpg": {
         "Code": "CNB-CNH-001",
         "Name": "Customised Name Hairband",
