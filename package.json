@@ -6,9 +6,8 @@
   "main": "server.js",
   "scripts": {
     "dev": "tsx server.ts",
-    "start": "node server.js",
-    "postinstall": "npm run build",
-    "build": "vite build && npx -y esbuild server.ts --bundle --platform=node --target=node18 --format=esm --outfile=dist/server.js --packages=external",
+    "start": "node dist/server.js",
+    "build": "vite build && esbuild server.ts --bundle --platform=node --format=esm --outfile=dist/server.js --packages=external",
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
@@ -46,7 +45,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-qr-code": "^2.0.21",
-    "react-router-dom": "^7.14.1",
+    "react-router-dom": "^7.18.2",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
@@ -58,6 +57,7 @@
     "ip-address": "^10.5.0",
     "websocket-driver": "^0.7.5",
     "postcss": "^8.5.26",
-    "axios": "^1.19.0"
+    "axios": "^1.19.0",
+    "esbuild": "^0.28.2"
   }
 }
