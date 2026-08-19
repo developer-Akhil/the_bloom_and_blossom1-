@@ -40,9 +40,9 @@
     "lucide-react": "^0.546.0",
     "morgan": "^1.10.1",
     "motion": "^12.23.24",
-    "nodemailer": "^8.0.6",
+    "nodemailer": "^9.0.5",
     "playwright": "^1.60.0",
-    "razorpay": "^2.9.6",
+    "razorpay": "^2.9.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-qr-code": "^2.0.21",
@@ -54,6 +54,10 @@
     "vite": "^6.4.2"
   },
   "overrides": {
-    "node-domexception": "^2.0.2"
+    "node-domexception": "^2.0.2",
+    "ip-address": "^10.5.0",
+    "websocket-driver": "^0.7.5",
+    "postcss": "^8.5.26",
+    "axios": "^1.19.0"
   }
 }
