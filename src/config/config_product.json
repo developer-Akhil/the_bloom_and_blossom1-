@@ -73,15 +73,6 @@
         "isCustomizable": true,
         "isBestSeller": true
       },
-	  "public/images/collections/customised_name_bows/skyblue_long_tail_name_bow.jpg": {
-        "Code": "CNB-SLTN-001",
-        "Name": "Skyblue Long-Tail Name Bow",
-        "Price": "200",
-        "stock": 14,
-        "rating": "4.8",
-        "isCustomizable": true,
-        "isBestSeller": true
-      },
       "public/images/collections/customised_name_bows/customised_name_hairband.jpg": {
         "Code": "CNB-CNH-001",
         "Name": "Customised Name Hairband",
@@ -109,6 +100,27 @@
         "isCustomizable": true,
         "isBestSeller": true
       },
+	  
+	  "Long Tail Name Bows" : {
+	  "public/images/collections/customised_name_bows/long_tail_name_bows/skyblue_long_tail_name_bow.jpg": {
+        "Code": "CNB-LTN-SNB-001",
+        "Name": "Skyblue Long-Tail Name Bow",
+        "Price": "200",
+        "stock": 14,
+        "rating": "4.9",
+        "isCustomizable": true,
+        "isBestSeller": true
+      },
+	  "public/images/collections/customised_name_bows/long_tail_name_bows/black_long_tail_name_bow.jpg": {
+        "Code": "CNB-LTN-BPB-001",
+        "Name": "Black Pearl Name Bow",
+        "Price": "200",
+        "stock": 14,
+        "rating": "4.5",
+        "isCustomizable": true,
+        "isBestSeller": true
+      }
+	  },
       "Daisy Name Bows": {
         "public/images/collections/customised_name_bows/daisy_name_bows/black.jpg": {
           "Code": "CNB-DNB-BLK-001",
@@ -231,6 +243,25 @@
           "isCustomizable": true,
           "isBestSeller": true
         }
+      },
+	  
+	  "public/images/collections/customised_name_bows/pastel_rainbow_name_headband.jpg": {
+        "Code": "CNB-PRNH-001",
+        "Name": "Pastel Rainbow Name Headband",
+        "Price": "200",
+        "stock": 5,
+        "rating": "4.6",
+        "isCustomizable": true,
+        "isBestSeller": true
+      },
+	  "public/images/collections/customised_name_bows/red_glitter_name_headband.jpg": {
+        "Code": "CNB-RGNH-001",
+        "Name": "Red Glitter Name Headband",
+        "Price": "200",
+        "stock": 7,
+        "rating": "4.7",
+        "isCustomizable": true,
+        "isBestSeller": true
       },
       "public/images/collections/customised_name_bows/daisy_name_without_tail_bow.jpg": {
         "Code": "CNB-DNWTB-PNK001",
