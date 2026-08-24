@@ -105,12 +105,28 @@ CREATE TABLE IF NOT EXISTS bb_ecommerce_sc.product_attributes (
   is_best_seller BOOLEAN DEFAULT FALSE,
   is_new_arrival BOOLEAN DEFAULT FALSE,
   is_on_sale BOOLEAN DEFAULT FALSE,
+  is_festival BOOLEAN DEFAULT FALSE,
   original_price DECIMAL(10, 2),
   description TEXT,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
--- 2.6 Wishlist Table
+-- Idempotent column check for existing databases:
+ALTER TABLE bb_ecommerce_sc.product_attributes ADD COLUMN IF NOT EXISTS is_festival BOOLEAN DEFAULT FALSE;
+ALTER TABLE bb_ecommerce_sc.product_attributes ADD COLUMN IF NOT EXISTS is_best_seller BOOLEAN DEFAULT FALSE;
+ALTER TABLE bb_ecommerce_sc.product_attributes ADD COLUMN IF NOT EXISTS is_new_arrival BOOLEAN DEFAULT FALSE;
+ALTER TABLE bb_ecommerce_sc.product_attributes ADD COLUMN IF NOT EXISTS is_on_sale BOOLEAN DEFAULT FALSE;
+ALTER TABLE bb_ecommerce_sc.product_attributes ADD COLUMN IF NOT EXISTS original_price DECIMAL(10, 2);
+ALTER TABLE bb_ecommerce_sc.product_attributes ADD COLUMN IF NOT EXISTS description TEXT;
+
+-- 2.6 Store Global Settings Table (Festival drop configuration, banners, announcements)
+CREATE TABLE IF NOT EXISTS bb_ecommerce_sc.store_settings (
+  key TEXT PRIMARY KEY,
+  value JSONB NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 2.7 Wishlist Table
 CREATE TABLE IF NOT EXISTS bb_ecommerce_sc.wishlist (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -404,6 +420,7 @@ ALTER TABLE bb_ecommerce_sc.admin_users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bb_ecommerce_sc.dynamic_prices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bb_ecommerce_sc.product_availability ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bb_ecommerce_sc.product_attributes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bb_ecommerce_sc.store_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bb_ecommerce_sc.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bb_ecommerce_sc.wishlist ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bb_ecommerce_sc.app_users ENABLE ROW LEVEL SECURITY;
@@ -431,7 +448,11 @@ CREATE POLICY "Product availability can be updated by authenticated users" ON bb
 CREATE POLICY "Product attributes are readable by everyone" ON bb_ecommerce_sc.product_attributes FOR SELECT USING (true);
 CREATE POLICY "Product attributes can be updated by authenticated users" ON bb_ecommerce_sc.product_attributes FOR ALL USING (auth.role() = 'authenticated');
 
--- 8.7 Orders Policies
+-- 8.7 Store Global Settings Policies
+CREATE POLICY "Store settings are readable by everyone" ON bb_ecommerce_sc.store_settings FOR SELECT USING (true);
+CREATE POLICY "Store settings can be updated by authenticated users" ON bb_ecommerce_sc.store_settings FOR ALL USING (auth.role() = 'authenticated');
+
+-- 8.8 Orders Policies
 CREATE POLICY "Users can view own orders" ON bb_ecommerce_sc.orders FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can create orders" ON bb_ecommerce_sc.orders FOR INSERT WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
 

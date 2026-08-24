@@ -109,12 +109,20 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
 
   // Fetch product settings (availability, prices, attributes) from Server API (works across all devices)
   const fetchProductSettings = useCallback(async () => {
+    let serverFetchSucceeded = false;
     try {
-      // 1. Fetch from server API endpoint (persisted across all devices)
-      const res = await fetch('/api/products/settings');
+      // 1. Fetch from server API endpoint (persisted across all devices) with cache busting
+      const res = await fetch(`/api/products/settings?_t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
       if (res.ok) {
         const json = await res.json();
         if (json.settings) {
+          serverFetchSucceeded = true;
           const { 
             availability, 
             pricing, 
@@ -179,84 +187,105 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       console.warn("Could not fetch /api/products/settings:", apiErr);
     }
 
-    // 2. Fallback / Direct Supabase sync if configured
-    try {
-      const { data: availData, error: availError } = await supabase.from('product_availability').select('product_id, in_stock');
-      if (!availError && availData && availData.length > 0) {
-        setAvailabilityMap(prev => {
-          const next = { ...prev };
-          availData.forEach(item => { next[item.product_id] = item.in_stock; });
-          localStorage.setItem('bloom_product_availability', JSON.stringify(next));
-          return next;
-        });
+    // 2. Fallback to direct Supabase sync ONLY if server API was unreachable
+    if (!serverFetchSucceeded) {
+      try {
+        const { data: availData, error: availError } = await supabase.from('product_availability').select('product_id, in_stock');
+        if (!availError && availData && availData.length > 0) {
+          setAvailabilityMap(prev => {
+            const next = { ...prev };
+            availData.forEach(item => { next[item.product_id] = item.in_stock; });
+            localStorage.setItem('bloom_product_availability', JSON.stringify(next));
+            return next;
+          });
+        }
+
+        const { data: priceData, error: priceError } = await supabase.from('dynamic_prices').select('product_id, price');
+        if (!priceError && priceData && priceData.length > 0) {
+          setPriceOverrides(prev => {
+            const next = { ...prev };
+            priceData.forEach(item => { next[item.product_id] = item.price; });
+            localStorage.setItem('bloom_dynamic_prices', JSON.stringify(next));
+            return next;
+          });
+        }
+
+        const { data: attrData, error: attrError } = await supabase.from('product_attributes').select('*');
+        if (!attrError && attrData && attrData.length > 0) {
+           const newBestSellers = new Set<string>();
+           const newNewArrivals = new Set<string>();
+           const newOnSale = new Set<string>();
+           const newFestival = new Set<string>();
+           const newOriginalPrices: Record<string, number> = {};
+           const newDescriptions: Record<string, string> = {};
+
+           attrData.forEach(item => {
+              if (item.is_best_seller) newBestSellers.add(item.product_id);
+              if (item.is_new_arrival) newNewArrivals.add(item.product_id);
+              if (item.is_on_sale) newOnSale.add(item.product_id);
+              if (item.is_festival) newFestival.add(item.product_id);
+              if (item.original_price !== null && item.original_price !== undefined) newOriginalPrices[item.product_id] = item.original_price;
+              if (item.description !== null && item.description !== undefined) newDescriptions[item.product_id] = item.description;
+           });
+
+           if (newBestSellers.size > 0) {
+             setBestSellersSet(newBestSellers);
+             localStorage.setItem('bloom_best_sellers', JSON.stringify(Array.from(newBestSellers)));
+           }
+           if (newNewArrivals.size > 0) {
+             setNewArrivalsSet(newNewArrivals);
+             localStorage.setItem('bloom_new_arrivals', JSON.stringify(Array.from(newNewArrivals)));
+           }
+           if (newOnSale.size > 0) {
+             setOnSaleSet(newOnSale);
+             localStorage.setItem('bloom_on_sale', JSON.stringify(Array.from(newOnSale)));
+           }
+           if (newFestival.size > 0) {
+             setFestivalSet(newFestival);
+             localStorage.setItem('bloom_festival_products', JSON.stringify(Array.from(newFestival)));
+           }
+           if (Object.keys(newOriginalPrices).length > 0) {
+             setOriginalPriceOverrides(prev => ({ ...prev, ...newOriginalPrices }));
+             localStorage.setItem('bloom_original_prices', JSON.stringify(newOriginalPrices));
+           }
+           if (Object.keys(newDescriptions).length > 0) {
+             setDescriptionOverrides(prev => ({ ...prev, ...newDescriptions }));
+             localStorage.setItem('bloom_descriptions', JSON.stringify(newDescriptions));
+           }
+           setIsServerLoaded(true);
+        }
+
+        const { data: storeData } = await supabase.from('store_settings').select('*').eq('key', 'festival_config').single();
+        if (storeData && storeData.value) {
+          const conf = storeData.value;
+          setFestivalConfig({
+            enabled: conf.enabled !== false,
+            title: conf.title || "Festival / Occasion",
+            subtitle: conf.subtitle || "Handcrafted festive hair accessories & special occasion drops."
+          });
+          localStorage.setItem('bloom_festival_config', JSON.stringify(conf));
+        }
+      } catch (supabaseErr) {
+        // Supabase is optional
       }
-
-      const { data: priceData, error: priceError } = await supabase.from('dynamic_prices').select('product_id, price');
-      if (!priceError && priceData && priceData.length > 0) {
-        setPriceOverrides(prev => {
-          const next = { ...prev };
-          priceData.forEach(item => { next[item.product_id] = item.price; });
-          localStorage.setItem('bloom_dynamic_prices', JSON.stringify(next));
-          return next;
-        });
-      }
-
-      const { data: attrData, error: attrError } = await supabase.from('product_attributes').select('*');
-      if (!attrError && attrData && attrData.length > 0) {
-         const newBestSellers = new Set<string>();
-         const newNewArrivals = new Set<string>();
-         const newOnSale = new Set<string>();
-         const newFestival = new Set<string>();
-         const newOriginalPrices: Record<string, number> = {};
-         const newDescriptions: Record<string, string> = {};
-
-         attrData.forEach(item => {
-            if (item.is_best_seller) newBestSellers.add(item.product_id);
-            if (item.is_new_arrival) newNewArrivals.add(item.product_id);
-            if (item.is_on_sale) newOnSale.add(item.product_id);
-            if (item.is_festival) newFestival.add(item.product_id);
-            if (item.original_price !== null && item.original_price !== undefined) newOriginalPrices[item.product_id] = item.original_price;
-            if (item.description !== null && item.description !== undefined) newDescriptions[item.product_id] = item.description;
-         });
-
-         if (newBestSellers.size > 0) {
-           setBestSellersSet(newBestSellers);
-           localStorage.setItem('bloom_best_sellers', JSON.stringify(Array.from(newBestSellers)));
-         }
-         if (newNewArrivals.size > 0) {
-           setNewArrivalsSet(newNewArrivals);
-           localStorage.setItem('bloom_new_arrivals', JSON.stringify(Array.from(newNewArrivals)));
-         }
-         if (newOnSale.size > 0) {
-           setOnSaleSet(newOnSale);
-           localStorage.setItem('bloom_on_sale', JSON.stringify(Array.from(newOnSale)));
-         }
-         if (newFestival.size > 0) {
-           setFestivalSet(newFestival);
-           localStorage.setItem('bloom_festival_products', JSON.stringify(Array.from(newFestival)));
-         }
-         if (Object.keys(newOriginalPrices).length > 0) {
-           setOriginalPriceOverrides(prev => ({ ...prev, ...newOriginalPrices }));
-           localStorage.setItem('bloom_original_prices', JSON.stringify(newOriginalPrices));
-         }
-         if (Object.keys(newDescriptions).length > 0) {
-           setDescriptionOverrides(prev => ({ ...prev, ...newDescriptions }));
-           localStorage.setItem('bloom_descriptions', JSON.stringify(newDescriptions));
-         }
-      }
-    } catch (supabaseErr) {
-      // Supabase is optional
     }
   }, []);
 
   useEffect(() => {
     fetchProductSettings();
 
-    // Re-fetch when browser window/tab regains focus
-    const onFocus = () => {
+    // Re-fetch on focus and visibilitychange to ensure instant sync across tabs & devices
+    const handleSync = () => {
       fetchProductSettings();
     };
-    window.addEventListener('focus', onFocus);
+
+    window.addEventListener('focus', handleSync);
+    document.addEventListener('visibilitychange', handleSync);
+
+    // Periodic sync every 20 seconds for real-time consistency across multiple devices
+    const pollInterval = setInterval(() => {
+      fetchProductSettings();
+    }, 20000);
 
     const handleUpdate = () => {
       const localPrices = localStorage.getItem('bloom_dynamic_prices');
@@ -304,9 +333,12 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener('on_sale_updated', handleOnSaleUpdate);
     window.addEventListener('original_price_updated', handleOriginalPricesUpdate);
     window.addEventListener('descriptions_updated', handleDescriptionsUpdate);
+    window.addEventListener('storage', handleSync);
 
     return () => {
-       window.removeEventListener('focus', onFocus);
+       clearInterval(pollInterval);
+       window.removeEventListener('focus', handleSync);
+       document.removeEventListener('visibilitychange', handleSync);
        window.removeEventListener('dynamic_price_updated', handleUpdate);
        window.removeEventListener('best_sellers_updated', handleBestSellersUpdate);
        window.removeEventListener('new_arrivals_updated', handleNewArrivalsUpdate);
@@ -316,6 +348,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
        window.removeEventListener('on_sale_updated', handleOnSaleUpdate);
        window.removeEventListener('original_price_updated', handleOriginalPricesUpdate);
        window.removeEventListener('descriptions_updated', handleDescriptionsUpdate);
+       window.removeEventListener('storage', handleSync);
     };
   }, [fetchProductSettings]);
 
@@ -331,23 +364,25 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       }
       
       // 2. Best Seller Status
-      if (bestSellersSet.size > 0) {
+      if (isServerLoaded || bestSellersSet.size > 0) {
         updatedProduct.isBestSeller = bestSellersSet.has(product.id);
       }
 
       // 3. New Arrival Status
-      if (newArrivalsSet.size > 0) {
+      if (isServerLoaded || newArrivalsSet.size > 0) {
         updatedProduct.isNewArrival = newArrivalsSet.has(product.id);
       }
 
       // 4. On Sale Status
-      if (onSaleSet.size > 0) {
+      if (isServerLoaded || onSaleSet.size > 0) {
         updatedProduct.isOnSale = onSaleSet.has(product.id);
       }
 
       // 4.5. Festival / Special Occasion Status
-      if (festivalSet.size > 0) {
+      if (isServerLoaded || festivalSet.size > 0) {
         updatedProduct.isFestival = festivalSet.has(product.id);
+      } else {
+        updatedProduct.isFestival = !!product.isFestival;
       }
 
       // 5. Original Price Override

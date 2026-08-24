@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ArrowRight, Star, Heart, ShoppingBag } from 'lucide-react';
+import { ArrowRight, Star, Heart, ShoppingBag, Sparkles } from 'lucide-react';
 import { rawHomeImages, rawProductImages, resolveImageUrl } from '../data/products';
 import { useMediaContext } from '../context/MediaContext';
 import { useProductContext } from '../context/ProductContext';
@@ -12,8 +12,12 @@ import { cn } from '../lib/utils';
 import { OptimizedImage } from '../components/common/OptimizedImage';
 
 export function Home() {
-  const { products, categories } = useProductContext();
+  const { products, categories, festivalProducts, festivalConfig } = useProductContext();
   const { assets } = useMediaContext();
+  
+  const isFestivalSectionActive = festivalConfig?.enabled !== false && festivalProducts && festivalProducts.length > 0;
+  const festivalTitle = festivalConfig?.title || "Festival / Occasion";
+  const festivalSubtitle = festivalConfig?.subtitle || "Handcrafted festive hair accessories & special occasion drops.";
   
   // Convert rawHomeImages keys to useful URLs
   const homeBgKeys = Object.keys(rawHomeImages);
@@ -191,6 +195,42 @@ export function Home() {
         </div>
       </section>
 
+      {/* Festive Spotlight Section (Displayed when Festival drop is enabled and has items) */}
+      {isFestivalSectionActive && (
+        <section className="container mx-auto px-4 md:px-6">
+          <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 rounded-3xl p-8 md:p-12 text-white shadow-xl relative overflow-hidden">
+            <div className="absolute right-0 top-0 translate-x-12 -translate-y-12 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+              <div className="space-y-3 max-w-2xl">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-wider">
+                  <Sparkles size={14} className="text-amber-200 fill-amber-200 animate-pulse" />
+                  <span>Featured Collection</span>
+                </div>
+                <h2 className="font-serif text-3xl md:text-5xl font-bold tracking-tight text-white">
+                  {festivalTitle}
+                </h2>
+                <p className="text-white/90 text-sm md:text-base font-light">
+                  {festivalSubtitle}
+                </p>
+              </div>
+              <Link 
+                to="/collections?festival=true" 
+                className="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-full text-sm font-bold shadow-lg hover:bg-amber-50 hover:scale-105 transition-all self-start md:self-auto shrink-0"
+              >
+                <span>View Festive Drop</span>
+                <ArrowRight size={16} />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+              {festivalProducts.slice(0, 4).map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Featured Products */}
       <section className="bg-bloom-pink/30 py-24">
         <div className="container mx-auto px-4 md:px-6">
@@ -332,14 +372,24 @@ export function ProductCard({ product, redirectToCategory = false }: { product: 
         />
         
         {/* Badges */}
-        <div className="absolute top-4 left-4 flex flex-col items-start space-y-2">
+        <div className="absolute top-4 left-4 flex flex-col items-start space-y-2 pointer-events-none">
           {!product.inStock ? (
             <span className="px-3 py-1 bg-red-500 text-white text-[10px] shadow-sm font-bold uppercase rounded-full">Out of Stock</span>
-          ) : product.isCustomizable ? (
-            <span className="px-3 py-1 bg-bloom-rose text-white text-[10px] font-bold uppercase rounded-full shadow-sm">Customizable</span>
-          ) : null}
-          {product.isOnSale && product.inStock && (
-            <span className="px-3 py-1 bg-orange-500 text-white text-[10px] shadow-sm font-bold uppercase rounded-full">Sale</span>
+          ) : (
+            <>
+              {product.isFestival && (
+                <span className="px-3 py-1 bg-gradient-to-r from-amber-500 to-rose-500 text-white text-[10px] shadow-sm font-bold uppercase rounded-full flex items-center gap-1">
+                  <Sparkles size={10} className="fill-white shrink-0" />
+                  <span>Festive</span>
+                </span>
+              )}
+              {product.isCustomizable && (
+                <span className="px-3 py-1 bg-bloom-rose text-white text-[10px] font-bold uppercase rounded-full shadow-sm">Customizable</span>
+              )}
+              {product.isOnSale && (
+                <span className="px-3 py-1 bg-orange-500 text-white text-[10px] shadow-sm font-bold uppercase rounded-full">Sale</span>
+              )}
+            </>
           )}
         </div>
 

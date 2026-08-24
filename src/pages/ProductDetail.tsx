@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { products as baseProducts } from '../data/products';
 import { useProductContext } from '../context/ProductContext';
 import { useCart } from '../context/CartContext';
-import { Star, ShieldCheck, Truck, Heart, ShoppingBag, ChevronRight, ChevronLeft, Minus, Plus, Share2 } from 'lucide-react';
+import { Star, ShieldCheck, Truck, Heart, ShoppingBag, ChevronRight, ChevronLeft, Minus, Plus, Share2, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '../lib/utils';
 import { ProductCard } from './Home';
@@ -11,7 +11,7 @@ import { OptimizedImage } from '../components/common/OptimizedImage';
 import { ProductReviews } from '../components/ProductReviews';
 
 export function ProductDetail() {
-  const { products } = useProductContext();
+  const { products, festivalConfig } = useProductContext();
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
@@ -160,6 +160,15 @@ export function ProductDetail() {
               >
                 {product.category}
               </Link>
+              {product.isFestival && (
+                <Link
+                  to="/collections?festival=true"
+                  className="px-3 py-1 bg-gradient-to-r from-amber-500 to-rose-500 text-white text-[10px] shadow-sm font-bold uppercase rounded-full tracking-widest hover:opacity-90 transition-opacity inline-flex items-center gap-1"
+                >
+                  <Sparkles size={10} className="fill-white" />
+                  <span>{festivalConfig?.title || 'Festive'}</span>
+                </Link>
+              )}
               {product.isOnSale && (
                 <span className="px-3 py-1 bg-orange-500 text-white text-[10px] shadow-sm font-bold uppercase rounded-full">Sale</span>
               )}

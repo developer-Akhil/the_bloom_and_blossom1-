@@ -135,10 +135,11 @@ export async function handleGetSettings(_req: express.Request, res: express.Resp
     // If Supabase is active, sync with database
     if (supabaseAdmin) {
       try {
-        const [availRes, priceRes, attrRes] = await Promise.allSettled([
+        const [availRes, priceRes, attrRes, settingsRes] = await Promise.allSettled([
           supabaseAdmin.from('product_availability').select('product_id, in_stock'),
           supabaseAdmin.from('dynamic_prices').select('product_id, price'),
-          supabaseAdmin.from('product_attributes').select('*')
+          supabaseAdmin.from('product_attributes').select('*'),
+          supabaseAdmin.from('store_settings').select('*')
         ]);
 
         if (availRes.status === 'fulfilled' && !availRes.value.error && availRes.value.data) {
@@ -157,11 +158,25 @@ export async function handleGetSettings(_req: express.Request, res: express.Resp
           const bs = new Set(settings.best_sellers);
           const na = new Set(settings.new_arrivals);
           const os = new Set(settings.on_sale);
+          const fest = new Set(settings.festival || []);
 
           attrRes.value.data.forEach((row: any) => {
-            if (row.is_best_seller) bs.add(row.product_id);
-            if (row.is_new_arrival) na.add(row.product_id);
-            if (row.is_on_sale) os.add(row.product_id);
+            if (row.is_best_seller !== undefined) {
+              if (row.is_best_seller) bs.add(row.product_id);
+              else bs.delete(row.product_id);
+            }
+            if (row.is_new_arrival !== undefined) {
+              if (row.is_new_arrival) na.add(row.product_id);
+              else na.delete(row.product_id);
+            }
+            if (row.is_on_sale !== undefined) {
+              if (row.is_on_sale) os.add(row.product_id);
+              else os.delete(row.product_id);
+            }
+            if (row.is_festival !== undefined) {
+              if (row.is_festival) fest.add(row.product_id);
+              else fest.delete(row.product_id);
+            }
             if (row.original_price !== null && row.original_price !== undefined) {
               settings.original_prices[row.product_id] = row.original_price;
             }
@@ -173,6 +188,18 @@ export async function handleGetSettings(_req: express.Request, res: express.Resp
           settings.best_sellers = Array.from(bs);
           settings.new_arrivals = Array.from(na);
           settings.on_sale = Array.from(os);
+          settings.festival = Array.from(fest);
+        }
+
+        if (settingsRes.status === 'fulfilled' && !settingsRes.value.error && settingsRes.value.data) {
+          const festRow = settingsRes.value.data.find((r: any) => r.key === 'festival_config');
+          if (festRow && festRow.value && typeof festRow.value === 'object') {
+            settings.festival_config = {
+              enabled: festRow.value.enabled !== false,
+              title: festRow.value.title || "Festival / Occasion",
+              subtitle: festRow.value.subtitle || "Handcrafted festive hair accessories & special occasion drops."
+            };
+          }
         }
 
         // Cache back to disk
@@ -379,6 +406,20 @@ router.post("/festival-config", async (req, res) => {
     const saved = saveStoredSettings({
       festival_config: newConfig
     });
+
+    if (supabaseAdmin) {
+      try {
+        await supabaseAdmin
+          .from('store_settings')
+          .upsert({
+            key: 'festival_config',
+            value: newConfig,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'key' });
+      } catch (dbErr) {
+        console.warn("Supabase store_settings sync warning:", dbErr);
+      }
+    }
 
     res.json({ success: true, festival_config: saved.festival_config });
   } catch (error: any) {

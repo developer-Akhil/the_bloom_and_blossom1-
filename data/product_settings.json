@@ -3,13 +3,13 @@
     "test-product": false,
     "prod_1000": true,
     "prod_1040": true,
-    "prod_1034": false,
-    "prod_1033": false,
-    "prod_1032": false,
+    "prod_1034": true,
+    "prod_1033": true,
+    "prod_1032": true,
     "prod_1031": true,
     "prod_1030": true,
-    "prod_1035": false,
-    "prod_1036": false,
+    "prod_1035": true,
+    "prod_1036": true,
     "prod_1038": true,
     "prod_1002": false,
     "prod_1004": false,
@@ -19,7 +19,8 @@
     "prod_1020": false,
     "prod_1021": false,
     "prod_grp_1024": false,
-    "prod_1037": false
+    "prod_1037": true,
+    "prod_grp_1023": true
   },
   "pricing": {
     "1": 200,
@@ -42,8 +43,25 @@
     "prod_1058",
     "prod_1065"
   ],
-  "new_arrivals": [],
+  "new_arrivals": [
+    "prod_grp_1023"
+  ],
   "on_sale": [],
+  "festival": [
+    "prod_grp_1023",
+    "prod_1023",
+    "prod_1024",
+    "prod_1025",
+    "prod_1026",
+    "prod_1027",
+    "prod_1028",
+    "prod_1049"
+  ],
+  "festival_config": {
+    "enabled": true,
+    "title": "Festival / Occasion",
+    "subtitle": "Handcrafted festive hair accessories & special occasion drops."
+  },
   "descriptions": {},
-  "updated_at": "2026-08-24T09:55:19.728Z"
+  "updated_at": "2026-08-24T17:01:41.669Z"
 }
