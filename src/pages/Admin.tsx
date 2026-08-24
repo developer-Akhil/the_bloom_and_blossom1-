@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { Settings, LogOut, Package, ShoppingBag, MessageSquare } from 'lucide-react';
+import { Settings, LogOut, Package, ShoppingBag, MessageSquare, HeartHandshake, Sparkles } from 'lucide-react';
 import { useAdminAuth } from '../context/AdminAuthContext';
 
 export function Admin() {
@@ -29,7 +29,7 @@ export function Admin() {
             <div className="flex items-center gap-4 flex-wrap pt-2 md:pt-0">
               <button 
                 onClick={logout}
-                className="flex items-center space-x-2 px-4 py-2 text-xs font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest"
+                className="flex items-center space-x-2 px-4 py-2 text-xs font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest cursor-pointer"
               >
                 <LogOut size={14} />
                 <span>Secure Logout</span>
@@ -38,38 +38,53 @@ export function Admin() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+          <Link 
+            to="/admin/feedback"
+            className="flex flex-col items-center justify-center p-8 bg-gradient-to-b from-rose-50/50 via-white to-white rounded-3xl shadow-sm border border-rose-200/60 hover:shadow-md hover:-translate-y-1 transition-all group"
+          >
+            <div className="p-4 bg-rose-50 rounded-full group-hover:bg-bloom-pink transition-colors mb-4 text-bloom-rose">
+              <HeartHandshake size={40} />
+            </div>
+            <div className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full mb-1">
+              <Sparkles size={10} />
+              <span>Omni-Channel</span>
+            </div>
+            <h2 className="text-lg font-bold font-serif text-gray-900 mb-1 text-center">Customer Feedback & Google Reviews</h2>
+            <p className="text-gray-500 text-center text-xs">Collect social media & website feedback and track Google reviews.</p>
+          </Link>
+
           <Link 
             to="/admin/products"
-            className="flex flex-col items-center justify-center p-12 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all group"
+            className="flex flex-col items-center justify-center p-8 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all group"
           >
             <div className="p-4 bg-gray-50 rounded-full group-hover:bg-bloom-pink transition-colors mb-4 text-gray-400 group-hover:text-bloom-rose">
-              <ShoppingBag size={48} />
+              <ShoppingBag size={40} />
             </div>
-            <h2 className="text-xl font-bold font-serif text-gray-900 mb-2">Manage Products</h2>
-            <p className="text-gray-500 text-center text-sm">Update prices, stock, best sellers, and new arrivals.</p>
+            <h2 className="text-lg font-bold font-serif text-gray-900 mb-1 text-center">Manage Products</h2>
+            <p className="text-gray-500 text-center text-xs">Update prices, stock, best sellers, and new arrivals.</p>
           </Link>
 
           <Link 
             to="/admin/orders"
-            className="flex flex-col items-center justify-center p-12 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all group"
+            className="flex flex-col items-center justify-center p-8 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all group"
           >
             <div className="p-4 bg-gray-50 rounded-full group-hover:bg-bloom-pink transition-colors mb-4 text-gray-400 group-hover:text-bloom-rose">
-              <Package size={48} />
+              <Package size={40} />
             </div>
-            <h2 className="text-xl font-bold font-serif text-gray-900 mb-2">Manage Orders</h2>
-            <p className="text-gray-500 text-center text-sm">View and fulfill customer orders and payments.</p>
+            <h2 className="text-lg font-bold font-serif text-gray-900 mb-1 text-center">Manage Orders</h2>
+            <p className="text-gray-500 text-center text-xs">View and fulfill customer orders and payments.</p>
           </Link>
 
           <Link 
             to="/admin/reviews"
-            className="flex flex-col items-center justify-center p-12 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all group"
+            className="flex flex-col items-center justify-center p-8 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all group"
           >
             <div className="p-4 bg-gray-50 rounded-full group-hover:bg-bloom-pink transition-colors mb-4 text-gray-400 group-hover:text-bloom-rose">
-              <MessageSquare size={48} />
+              <MessageSquare size={40} />
             </div>
-            <h2 className="text-xl font-bold font-serif text-gray-900 mb-2">Manage Reviews</h2>
-            <p className="text-gray-500 text-center text-sm">Moderate ratings, reply to buyers, and view reports.</p>
+            <h2 className="text-lg font-bold font-serif text-gray-900 mb-1 text-center">Product Reviews</h2>
+            <p className="text-gray-500 text-center text-xs">Moderate ratings, reply to buyers, and view reports.</p>
           </Link>
         </div>
       </div>

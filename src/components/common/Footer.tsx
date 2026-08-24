@@ -60,8 +60,9 @@ export function Footer() {
 
           {/* Support */}
           <div>
-            <h4 className="font-serif text-lg font-bold mb-6">Support</h4>
+            <h4 className="font-serif text-lg font-bold mb-6">Support & Feedback</h4>
             <ul className="space-y-4 text-sm text-gray-500">
+              <li><FooterLink to="/feedback">Share Feedback 🌸</FooterLink></li>
               <li><FooterLink to="/contact">Contact Us</FooterLink></li>
               <li><FooterLink to="/terms">Terms & Conditions</FooterLink></li>
               <li><FooterLink to="/returns">Returns & Refunds</FooterLink></li>

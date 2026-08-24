@@ -72,3 +72,66 @@ export interface User {
   photoURL?: string;
   phone?: string;
 }
+
+export type FeedbackType = 'DIRECT' | 'INDIRECT';
+
+export type FeedbackSource = 
+  | 'WEBSITE' 
+  | 'INSTAGRAM' 
+  | 'FACEBOOK' 
+  | 'WHATSAPP' 
+  | 'PHONE' 
+  | 'WALK_IN' 
+  | 'OTHER';
+
+export type GoogleReviewStatus = 'submitted' | 'not_submitted' | 'unknown' | 'clicked' | 'skipped';
+
+export interface FeedbackRequest {
+  feedback_request_id: string;
+  customer_id?: string | null;
+  order_id?: string | null;
+  source: FeedbackSource;
+  feedback_type: FeedbackType;
+  product_id?: string | null;
+  product_name?: string | null;
+  customer_name?: string | null;
+  mobile_number?: string | null;
+  email_address?: string | null;
+  notes?: string | null;
+  request_status: 'PENDING' | 'COMPLETED' | 'CANCELLED';
+  feedback_link_token: string;
+  sent_at?: string | null;
+  created_at: string;
+}
+
+export interface CustomerFeedback {
+  feedback_id: string;
+  feedback_request_id?: string | null;
+  customer_id?: string | null;
+  order_id?: string | null;
+  feedback_type: FeedbackType;
+  source: FeedbackSource;
+  rating: number;
+  comments?: string;
+  customer_name?: string | null;
+  mobile_number?: string | null;
+  email_address?: string | null;
+  product_name?: string | null;
+  submitted_at: string;
+  status: 'ACTIVE' | 'ARCHIVED';
+  google_review_status?: GoogleReviewStatus;
+  google_review_notes?: string | null;
+}
+
+export interface GoogleReviewRecord {
+  google_review_id: string;
+  feedback_id?: string | null;
+  feedback_request_id?: string | null;
+  google_review_reference?: string | null;
+  rating?: number | null;
+  review_text?: string | null;
+  status: GoogleReviewStatus;
+  review_date?: string | null;
+  created_at: string;
+  updated_at: string;
+}

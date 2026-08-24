@@ -13,6 +13,7 @@ import contactRoutes from "./server/routes/contactRoutes.js";
 import orderRoutes from "./server/routes/orderRoutes.js";
 import adminRoutes from "./server/routes/adminRoutes.js";
 import reviewRoutes from "./server/routes/reviewRoutes.js";
+import feedbackRoutes from "./server/routes/feedbackRoutes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -197,6 +198,7 @@ async function startServer() {
   app.use("/api/orders", orderRoutes);
   app.use("/api/admin", adminRoutes);
   app.use("/api/reviews", reviewRoutes);
+  app.use("/api/feedback", feedbackRoutes);
 
   app.post("/api/upload-image", (req, res) => {
     const { folderId, fileName, base64Data } = req.body;

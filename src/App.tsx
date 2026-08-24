@@ -26,6 +26,8 @@ import { AdminOrders } from './pages/AdminOrders';
 import { AdminOrderDetail } from './pages/AdminOrderDetail';
 import { AdminLogin } from './pages/AdminLogin';
 import { AdminReviews } from './pages/AdminReviews';
+import { AdminFeedback } from './pages/AdminFeedback';
+import { CustomerFeedback } from './pages/CustomerFeedback';
 import { NewArrivals } from './pages/NewArrivals';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
@@ -64,11 +66,14 @@ export default function App() {
                       <Route path="privacy" element={<Privacy />} />
                       <Route path="terms" element={<Terms />} />
                       <Route path="faq" element={<FAQ />} />
+                      <Route path="feedback" element={<CustomerFeedback />} />
+                      <Route path="feedback/:token" element={<CustomerFeedback />} />
                       <Route path="admin" element={<Admin />} />
                       <Route path="admin/products" element={<AdminProducts />} />
                       <Route path="admin/orders" element={<AdminOrders />} />
                       <Route path="admin/orders/:id" element={<AdminOrderDetail />} />
                       <Route path="admin/reviews" element={<AdminReviews />} />
+                      <Route path="admin/feedback" element={<AdminFeedback />} />
                       <Route path="admin/login" element={<AdminLogin />} />
                       <Route path="new-arrivals" element={<NewArrivals />} />
                       <Route path="wishlist" element={<Wishlist />} />

@@ -206,6 +206,65 @@ CREATE TABLE IF NOT EXISTS bb_ecommerce_sc.review_reports (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 4.5 Customer Feedback Requests Table (Direct & Indirect customer outreach)
+CREATE TABLE IF NOT EXISTS bb_ecommerce_sc.feedback_requests (
+  feedback_request_id TEXT PRIMARY KEY,
+  customer_id UUID REFERENCES bb_ecommerce_sc.app_users(id) ON DELETE SET NULL,
+  order_id TEXT, -- nullable
+  source TEXT NOT NULL DEFAULT 'WEBSITE', -- WEBSITE, INSTAGRAM, FACEBOOK, WHATSAPP, PHONE, WALK_IN, OTHER
+  feedback_type TEXT NOT NULL DEFAULT 'INDIRECT', -- DIRECT, INDIRECT
+  product_id TEXT,
+  product_name TEXT,
+  customer_name TEXT,
+  mobile_number TEXT,
+  email_address TEXT,
+  notes TEXT,
+  request_status TEXT NOT NULL DEFAULT 'PENDING', -- PENDING, COMPLETED, CANCELLED
+  feedback_link_token TEXT UNIQUE NOT NULL,
+  sent_at TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4.6 Customer Feedback Table (Works with or without website orders)
+CREATE TABLE IF NOT EXISTS bb_ecommerce_sc.feedback (
+  feedback_id TEXT PRIMARY KEY,
+  feedback_request_id TEXT REFERENCES bb_ecommerce_sc.feedback_requests(feedback_request_id) ON DELETE SET NULL,
+  customer_id UUID REFERENCES bb_ecommerce_sc.app_users(id) ON DELETE SET NULL,
+  order_id TEXT, -- nullable
+  feedback_type TEXT NOT NULL DEFAULT 'INDIRECT', -- DIRECT, INDIRECT
+  source TEXT NOT NULL DEFAULT 'WEBSITE',
+  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  comments TEXT,
+  customer_name TEXT,
+  mobile_number TEXT,
+  email_address TEXT,
+  product_name TEXT,
+  submitted_at TIMESTAMPTZ DEFAULT NOW(),
+  status TEXT NOT NULL DEFAULT 'ACTIVE',
+  google_review_status TEXT DEFAULT 'not_submitted', -- submitted, not_submitted, unknown, clicked, skipped
+  google_review_notes TEXT
+);
+
+-- 4.7 Google Reviews Tracking Table (Separately tracked from website feedback)
+CREATE TABLE IF NOT EXISTS bb_ecommerce_sc.google_reviews (
+  google_review_id TEXT PRIMARY KEY,
+  feedback_id TEXT REFERENCES bb_ecommerce_sc.feedback(feedback_id) ON DELETE CASCADE,
+  feedback_request_id TEXT REFERENCES bb_ecommerce_sc.feedback_requests(feedback_request_id) ON DELETE SET NULL,
+  google_review_reference TEXT,
+  rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+  review_text TEXT,
+  status TEXT NOT NULL DEFAULT 'submitted', -- submitted, not_submitted, unknown
+  review_date TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_feedback_source ON bb_ecommerce_sc.feedback(source);
+CREATE INDEX IF NOT EXISTS idx_feedback_type ON bb_ecommerce_sc.feedback(feedback_type);
+CREATE INDEX IF NOT EXISTS idx_feedback_rating ON bb_ecommerce_sc.feedback(rating);
+CREATE INDEX IF NOT EXISTS idx_feedback_token ON bb_ecommerce_sc.feedback_requests(feedback_link_token);
+
+
 
 -- ==============================================================================
 -- 5. PAYMENT & GATEWAY PROCESSING (Razorpay, etc.)

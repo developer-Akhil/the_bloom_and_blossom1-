@@ -239,6 +239,17 @@ export function CheckoutSuccess() {
              </div>
           )}
 
+          <div className="w-full max-w-md bg-pink-50/70 border border-bloom-pink/50 rounded-3xl p-5 text-center space-y-2 mt-4">
+            <p className="text-xs font-bold text-bloom-rose uppercase tracking-wider">🌸 We Value Your Thoughts</p>
+            <p className="text-sm text-gray-700">How was your ordering experience today?</p>
+            <button
+              onClick={() => navigate(`/feedback?order=${encodeURIComponent(orderId || '')}&source=WEBSITE`)}
+              className="mt-2 inline-flex items-center justify-center px-6 py-2.5 bg-white hover:bg-pink-100 text-bloom-rose font-bold text-xs rounded-full border border-pink-200 transition shadow-xs cursor-pointer"
+            >
+              Share Quick Feedback ⭐
+            </button>
+          </div>
+
           <div className="pt-8 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
             <button 
               onClick={() => navigate('/')}
