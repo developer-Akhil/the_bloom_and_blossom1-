@@ -42,6 +42,7 @@ export const updateAttributesBatch = async (updates: Record<string, {
    is_best_seller?: boolean;
    is_new_arrival?: boolean;
    is_on_sale?: boolean;
+   is_festival?: boolean;
    original_price?: number;
    description?: string;
 }>) => {
@@ -59,6 +60,39 @@ export const updateAttributesBatch = async (updates: Record<string, {
    } catch (e) {
      console.error("Express sync exception:", e);
    }
+};
+
+export const updateFestivalProducts = async (festivalIds: string[], allProductIds?: string[]) => {
+  localStorage.setItem('bloom_festival_products', JSON.stringify(festivalIds));
+  window.dispatchEvent(new Event('festival_products_updated'));
+  
+  if (allProductIds) {
+     const updates: Record<string, any> = {};
+     allProductIds.forEach(id => {
+         updates[id] = { is_festival: festivalIds.includes(id) };
+     });
+     await updateAttributesBatch(updates);
+  }
+};
+
+export const updateFestivalConfig = async (config: { enabled?: boolean; title?: string; subtitle?: string }) => {
+  const current = JSON.parse(localStorage.getItem('bloom_festival_config') || '{"enabled":true,"title":"Festival / Occasion","subtitle":"Handcrafted festive hair accessories & special occasion drops."}');
+  const updated = { ...current, ...config };
+  localStorage.setItem('bloom_festival_config', JSON.stringify(updated));
+  window.dispatchEvent(new Event('festival_config_updated'));
+
+  try {
+    const response = await fetch('/api/admin/festival-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated)
+    });
+    if (!response.ok) {
+      console.error("Failed to sync festival config to DB", await response.json());
+    }
+  } catch (e) {
+    console.error("Express sync festival config exception:", e);
+  }
 };
 
 export const updateBestSellers = async (bestSellerIds: string[], allProductIds?: string[]) => {

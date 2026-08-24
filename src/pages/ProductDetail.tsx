@@ -102,7 +102,9 @@ export function ProductDetail() {
         <ChevronRight size={12} />
         <Link to="/collections" className="hover:text-bloom-rose transition-colors">Collections</Link>
         <ChevronRight size={12} />
-        <span className="text-gray-900">{product.name}</span>
+        <Link to={`/collections?cat=${encodeURIComponent(product.category)}`} className="hover:text-bloom-rose transition-colors">{product.category}</Link>
+        <ChevronRight size={12} />
+        <span className="text-gray-900 line-clamp-1">{product.name}</span>
       </nav>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
@@ -151,10 +153,13 @@ export function ProductDetail() {
         {/* Product Info */}
         <div className="flex flex-col space-y-8">
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <span className="px-3 py-1 bg-bloom-pink text-bloom-rose text-[10px] font-bold uppercase rounded-full tracking-widest">
+            <div className="flex flex-wrap items-center gap-2">
+              <Link 
+                to={`/collections?cat=${encodeURIComponent(product.category)}`}
+                className="px-3 py-1 bg-bloom-pink text-bloom-rose text-[10px] font-bold uppercase rounded-full tracking-widest hover:opacity-80 transition-opacity"
+              >
                 {product.category}
-              </span>
+              </Link>
               {product.isOnSale && (
                 <span className="px-3 py-1 bg-orange-500 text-white text-[10px] shadow-sm font-bold uppercase rounded-full">Sale</span>
               )}

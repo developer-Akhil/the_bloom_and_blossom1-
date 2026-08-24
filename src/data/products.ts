@@ -24,11 +24,12 @@ const processedLocations = new Set<string>();
 const availableLocalImages = new Set<string>();
 try {
   // Vite feature to get all files in a directory
-  const localFiles = import.meta.glob('/public/images/**/*', { eager: true });
+  const localFiles = (import.meta as any).glob('../../public/images/**/*', { eager: true });
   for (const path of Object.keys(localFiles)) {
-    // path looks like /public/images/collections/...
+    // path looks like ../../public/images/collections/...
     // We store it as /images/collections/...
-    availableLocalImages.add(path.replace('/public', ''));
+    const cleanPath = path.replace(/^.*\/public/, '');
+    availableLocalImages.add(cleanPath);
   }
 } catch (e) {
   console.warn('Could not read local images', e);
@@ -48,20 +49,16 @@ function parsePrice(val: any, defaultPrice = 199): number {
  */
 export function resolveImageUrl(url: string): string {
   if (!url) return '';
-  // Normalize path format
-  const clean = url.startsWith('/') ? url : '/' + url;
+  // Normalize path format so it always routes cleanly to /images/...
+  let clean = url.replace(/^\/?public\//, '/');
+  if (!clean.startsWith('/')) clean = '/' + clean;
   
-  // Extract filename and parent folder to ensure laser-precision keyword matching without folder-name pollution
+  // Extract filename and parent folder
   const parts = clean.split('/');
   const filename = (parts.pop() || '').toLowerCase();
   const parentFolder = (parts.pop() || '').toLowerCase();
 
-  // 1. If the file actually exists in our local filesystem, use it!
-  if (availableLocalImages.has(clean)) {
-    return clean;
-  }
-
-  // 2. High-end curated direct mapping for missing fallback assets
+  // Curated direct mapping for missing fallback assets
   const curatedMap: Record<string, string> = {
     '/images/product_images/hairbands.jpg': 'https://images.unsplash.com/photo-1589156280159-27698a70f29e?q=80&w=800&auto=format&fit=crop',
     '/images/product_images/headbands.jpg': 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?q=80&w=800&auto=format&fit=crop',
@@ -82,60 +79,7 @@ export function resolveImageUrl(url: string): string {
     return curatedMap[clean];
   }
 
-  // A. Sunglasses Matching
-  if (filename.includes('sunglasses') || parentFolder.includes('sunglasses')) {
-    return 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?q=80&w=800&auto=format&fit=crop'; // Premium boutique sunglasses
-  }
-
-  // B. Cap / Hat Matching
-  if (filename.includes('cap') || filename.includes('hat') || parentFolder.includes('cap') || parentFolder.includes('caps')) {
-    return 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?q=80&w=800&auto=format&fit=crop'; // Clean minimalist fashion cap
-  }
-
-  // C. Headband & Hairband Matching
-  if (filename.includes('headband') || filename.includes('hairband') || parentFolder.includes('headbands') || parentFolder.includes('hairbands')) {
-    if (filename.includes('white') || filename.includes('pearl') || filename.includes('flower')) {
-      return 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?q=80&w=800&auto=format&fit=crop'; // Exquisite white/cream fashion headband on model
-    }
-    return 'https://images.unsplash.com/photo-1589156280159-27698a70f29e?q=80&w=800&auto=format&fit=crop'; // Golden-mustard headband style on model
-  }
-
-  // D. Scrunchie Matching
-  if (filename.includes('scrunchie') || parentFolder.includes('scrunchies')) {
-    return 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?q=80&w=800&auto=format&fit=crop'; // Luxurious silk accessories flatlay
-  }
-
-  // E. Crochet & Embroidery Matching
-  if (filename.includes('crochet') || filename.includes('embroidery') || parentFolder.includes('crochet') || parentFolder.includes('embroidery')) {
-    return 'https://images.unsplash.com/photo-1605497746444-ac9db1340459?q=80&w=800&auto=format&fit=crop'; // Premium handcrafted accessories
-  }
-
-  // F. Bows & Clips Color-Based Matching
-  if (filename.includes('maroon') || filename.includes('red')) {
-    return 'https://images.unsplash.com/photo-1576243345690-4e4b79b63288?q=80&w=800&auto=format&fit=crop'; // Crimson velvet bow in hair
-  }
-  if (filename.includes('black') || filename.includes('dark')) {
-    return 'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop'; // Dark premium hair bow aesthetic
-  }
-  if (filename.includes('silver') || filename.includes('sliver') || filename.includes('pearl') || filename.includes('crystal')) {
-    return 'https://images.unsplash.com/photo-1632345031435-8797b2d58045?q=80&w=800&auto=format&fit=crop'; // Fine crystal pearl jewelry bow
-  }
-  if (filename.includes('gold') || filename.includes('yellow') || filename.includes('glitter')) {
-    return 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=800&auto=format&fit=crop'; // Golden boutique hair embellishments
-  }
-  if (filename.includes('pink') || filename.includes('rose') || filename.includes('lavender') || filename.includes('purple') || filename.includes('peach') || filename.includes('candy') || filename.includes('daisy') || filename.includes('flower')) {
-    return 'https://images.unsplash.com/photo-1605497746444-ac9db1340459?q=80&w=800&auto=format&fit=crop'; // Elegant pastel pink/peach clips
-  }
-  if (filename.includes('blue') || filename.includes('skyblue') || filename.includes('teal') || filename.includes('mint')) {
-    return 'https://images.unsplash.com/photo-1605497746444-ac9db1340459?q=80&w=800&auto=format&fit=crop'; // High-end pastel styling
-  }
-
-  // G. General Bow Fallback
-  if (filename.includes('clip') || filename.includes('bow') || parentFolder.includes('clips') || parentFolder.includes('bows')) {
-    return 'https://images.unsplash.com/photo-1605497746444-ac9db1340459?q=80&w=800&auto=format&fit=crop'; // Elegant bow fallback
-  }
-
-  return url;
+  return clean;
 }
 
 /**
@@ -284,14 +228,13 @@ for (const [macroCategory, macroCategoryObj] of Object.entries(collectionsObj)) 
 const diskImages = (import.meta as any).glob('/public/images/collections/**/*.{jpg,jpeg,png,webp}', { eager: true });
 
 Object.keys(diskImages).forEach(path => {
+    // Skip placeholder keep files
     if (path.endsWith('.keep')) return;
-    
-    // Clean public directory referencing
-    const baseCleanUrl = path.replace('/public', '');
+
+    const baseCleanUrl = path.startsWith('/public') ? path.substring(7) : path.startsWith('public') ? path.substring(6) : path;
     const cleanUrl = resolveImageUrl(baseCleanUrl);
-    
-    // Skip if already mapped properly by JSON above
-    if (processedLocations.has(baseCleanUrl)) return; 
+
+    if (processedLocations.has(baseCleanUrl)) return; // Avoid duplicates
 
     const parts = path.split('/');
     const filename = parts.pop() || '';

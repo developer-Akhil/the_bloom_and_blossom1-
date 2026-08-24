@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
-import { type Product } from '../types';
+import { type Product, type FestivalSettings } from '../types';
 import { products as baseProducts, categories as baseCategories } from '../data/products';
 import { useMediaContext } from './MediaContext';
 import { supabase } from '../lib/supabase';
@@ -7,9 +7,17 @@ import { supabase } from '../lib/supabase';
 interface ProductContextType {
   products: Product[];
   categories: string[];
+  festivalProducts: Product[];
+  festivalConfig: FestivalSettings;
   loading: boolean;
   refreshProducts: () => Promise<void>;
 }
+
+const defaultFestivalConfig: FestivalSettings = {
+  enabled: true,
+  title: "Festival / Occasion",
+  subtitle: "Handcrafted festive hair accessories & special occasion drops."
+};
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
@@ -40,6 +48,24 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       return localNewArrivals ? new Set(JSON.parse(localNewArrivals)) : new Set();
     } catch {
       return new Set();
+    }
+  });
+
+  const [festivalSet, setFestivalSet] = useState<Set<string>>(() => {
+    try {
+      const localFestival = localStorage.getItem('bloom_festival_products');
+      return localFestival ? new Set(JSON.parse(localFestival)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
+
+  const [festivalConfig, setFestivalConfig] = useState<FestivalSettings>(() => {
+    try {
+      const localConfig = localStorage.getItem('bloom_festival_config');
+      return localConfig ? JSON.parse(localConfig) : defaultFestivalConfig;
+    } catch {
+      return defaultFestivalConfig;
     }
   });
 
@@ -96,6 +122,8 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
             best_sellers, 
             new_arrivals, 
             on_sale, 
+            festival,
+            festival_config: serverFestConfig,
             descriptions 
           } = json.settings;
 
@@ -127,6 +155,16 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
           if (Array.isArray(on_sale)) {
             setOnSaleSet(new Set(on_sale));
             localStorage.setItem('bloom_on_sale', JSON.stringify(on_sale));
+          }
+
+          if (Array.isArray(festival)) {
+            setFestivalSet(new Set(festival));
+            localStorage.setItem('bloom_festival_products', JSON.stringify(festival));
+          }
+
+          if (serverFestConfig && typeof serverFestConfig === 'object') {
+            setFestivalConfig(serverFestConfig);
+            localStorage.setItem('bloom_festival_config', JSON.stringify(serverFestConfig));
           }
 
           if (descriptions && typeof descriptions === 'object') {
@@ -168,6 +206,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
          const newBestSellers = new Set<string>();
          const newNewArrivals = new Set<string>();
          const newOnSale = new Set<string>();
+         const newFestival = new Set<string>();
          const newOriginalPrices: Record<string, number> = {};
          const newDescriptions: Record<string, string> = {};
 
@@ -175,6 +214,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
             if (item.is_best_seller) newBestSellers.add(item.product_id);
             if (item.is_new_arrival) newNewArrivals.add(item.product_id);
             if (item.is_on_sale) newOnSale.add(item.product_id);
+            if (item.is_festival) newFestival.add(item.product_id);
             if (item.original_price !== null && item.original_price !== undefined) newOriginalPrices[item.product_id] = item.original_price;
             if (item.description !== null && item.description !== undefined) newDescriptions[item.product_id] = item.description;
          });
@@ -190,6 +230,10 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
          if (newOnSale.size > 0) {
            setOnSaleSet(newOnSale);
            localStorage.setItem('bloom_on_sale', JSON.stringify(Array.from(newOnSale)));
+         }
+         if (newFestival.size > 0) {
+           setFestivalSet(newFestival);
+           localStorage.setItem('bloom_festival_products', JSON.stringify(Array.from(newFestival)));
          }
          if (Object.keys(newOriginalPrices).length > 0) {
            setOriginalPriceOverrides(prev => ({ ...prev, ...newOriginalPrices }));
@@ -226,6 +270,14 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       const localNewArrivals = localStorage.getItem('bloom_new_arrivals');
       if (localNewArrivals) setNewArrivalsSet(new Set(JSON.parse(localNewArrivals)));
     };
+    const handleFestivalProductsUpdate = () => {
+      const localFestival = localStorage.getItem('bloom_festival_products');
+      if (localFestival) setFestivalSet(new Set(JSON.parse(localFestival)));
+    };
+    const handleFestivalConfigUpdate = () => {
+      const localConfig = localStorage.getItem('bloom_festival_config');
+      if (localConfig) setFestivalConfig(JSON.parse(localConfig));
+    };
     const handleAvailabilityUpdate = () => {
       const localAvailability = localStorage.getItem('bloom_product_availability');
       if (localAvailability) setAvailabilityMap(JSON.parse(localAvailability));
@@ -246,6 +298,8 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener('dynamic_price_updated', handleUpdate);
     window.addEventListener('best_sellers_updated', handleBestSellersUpdate);
     window.addEventListener('new_arrivals_updated', handleNewArrivalsUpdate);
+    window.addEventListener('festival_products_updated', handleFestivalProductsUpdate);
+    window.addEventListener('festival_config_updated', handleFestivalConfigUpdate);
     window.addEventListener('availability_updated', handleAvailabilityUpdate);
     window.addEventListener('on_sale_updated', handleOnSaleUpdate);
     window.addEventListener('original_price_updated', handleOriginalPricesUpdate);
@@ -256,6 +310,8 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
        window.removeEventListener('dynamic_price_updated', handleUpdate);
        window.removeEventListener('best_sellers_updated', handleBestSellersUpdate);
        window.removeEventListener('new_arrivals_updated', handleNewArrivalsUpdate);
+       window.removeEventListener('festival_products_updated', handleFestivalProductsUpdate);
+       window.removeEventListener('festival_config_updated', handleFestivalConfigUpdate);
        window.removeEventListener('availability_updated', handleAvailabilityUpdate);
        window.removeEventListener('on_sale_updated', handleOnSaleUpdate);
        window.removeEventListener('original_price_updated', handleOriginalPricesUpdate);
@@ -287,6 +343,11 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       // 4. On Sale Status
       if (onSaleSet.size > 0) {
         updatedProduct.isOnSale = onSaleSet.has(product.id);
+      }
+
+      // 4.5. Festival / Special Occasion Status
+      if (festivalSet.size > 0) {
+        updatedProduct.isFestival = festivalSet.has(product.id);
       }
 
       // 5. Original Price Override
@@ -366,11 +427,12 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         const isBestSeller = bestSellersSet.has(productId);
         const isNewArrival = newArrivalsSet.has(productId);
         const isOnSale = onSaleSet.has(productId);
+        const isFestival = festivalSet.has(productId);
 
         newlyConstructedProducts.push({
            id: productId,
            name: productName, 
-           category: categoryTitle,
+           category: categoryTitle as any,
            price: priceOverrides[productId] || 149,
            originalPrice: originalPriceOverrides[productId],
            description: descriptionOverrides[productId] || `Beautifully handcrafted ${categoryTitle}.`,
@@ -381,6 +443,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
            isBestSeller,
            isNewArrival,
            isOnSale,
+           isFestival,
            rating: 5.0
         });
     });
@@ -396,6 +459,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     descriptionOverrides, 
     bestSellersSet, 
     newArrivalsSet, 
+    festivalSet,
     availabilityMap, 
     onSaleSet, 
     isServerLoaded
@@ -419,10 +483,16 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     return Array.from(new Set([...baseCategories, ...adminFolders, ...autoCategories]));
   }, [folders]);
 
+  const festivalProducts = useMemo(() => {
+    return mergedProducts.filter(p => !!p.isFestival);
+  }, [mergedProducts]);
+
   return (
     <ProductContext.Provider value={{ 
       products: mergedProducts, 
       categories: mergedCategories, 
+      festivalProducts,
+      festivalConfig,
       loading: mediaLoading, 
       refreshProducts: fetchProductSettings 
     }}>

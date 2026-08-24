@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingBag, Heart, User, Menu, X, ArrowRight } from 'lucide-react';
+import { Search, ShoppingBag, Heart, User, Menu, X, ArrowRight, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useMediaContext } from '../../context/MediaContext';
+import { useProductContext } from '../../context/ProductContext';
 import { useTheme } from '../../context/ThemeContext';
 import { rawLogoData } from '../../data/products';
 import { OptimizedImage } from './OptimizedImage';
@@ -17,8 +18,12 @@ export function Header() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const { festivalConfig, festivalProducts } = useProductContext();
 
   const { assets } = useMediaContext();
+
+  const isFestivalActive = festivalConfig?.enabled !== false && festivalProducts && festivalProducts.length > 0;
+  const festivalTitle = festivalConfig?.title || "Festival / Occasion";
 
   const logoKeys = Object.keys(rawLogoData);
   const getLogoPath = () => {
@@ -79,9 +84,18 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-6 lg:space-x-8">
             <NavLink to="/">Home</NavLink>
             <NavLink to="/collections">Collections</NavLink>
+            {isFestivalActive && (
+              <Link 
+                to="/collections?festival=true"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 text-amber-900 border border-amber-300/80 rounded-full text-xs font-bold transition-all shadow-xs hover:scale-105"
+              >
+                <Sparkles size={13} className="text-amber-600 fill-amber-500 animate-pulse shrink-0" />
+                <span className="truncate max-w-[150px]">{festivalTitle}</span>
+              </Link>
+            )}
             <NavLink to="/new-arrivals">New Arrivals</NavLink>
             <NavLink to="/about">Our Story</NavLink>
             <NavLink to="/contact">Contact</NavLink>
@@ -134,6 +148,19 @@ export function Header() {
             <div className="flex flex-col space-y-1 p-4 font-medium">
               <MobileNavLink to="/" onClick={() => setIsMenuOpen(false)}>Home</MobileNavLink>
               <MobileNavLink to="/collections" onClick={() => setIsMenuOpen(false)}>Collections</MobileNavLink>
+              {isFestivalActive && (
+                <Link 
+                  to="/collections?festival=true" 
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-base py-3 px-3 my-1 border rounded-xl flex items-center justify-between font-bold text-amber-900 bg-amber-50 border-amber-200"
+                >
+                  <span className="flex items-center gap-2">
+                    <Sparkles size={16} className="text-amber-600 fill-amber-500" />
+                    <span>{festivalTitle}</span>
+                  </span>
+                  <ArrowRight size={16} className="text-amber-700" />
+                </Link>
+              )}
               <MobileNavLink to="/new-arrivals" onClick={() => setIsMenuOpen(false)}>New Arrivals</MobileNavLink>
               <MobileNavLink to="/about" onClick={() => setIsMenuOpen(false)}>Our Story</MobileNavLink>
               <MobileNavLink to="/contact" onClick={() => setIsMenuOpen(false)}>Contact</MobileNavLink>

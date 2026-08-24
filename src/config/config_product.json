@@ -387,16 +387,61 @@
         "stock": 10,
         "isCustomizable": false,
         "isBestSeller": true
-      },
-      "public/images/collections/alligator_clips/navratri_special_clip.jpg": {
-        "Code": "AC-NSC-001",
-        "Name": "Navratri Special Clip",
-        "Price": "130",
-        "rating": "4.3",
-        "stock": 10,
-        "isCustomizable": false,
-        "isBestSeller": true
-      },
+      },  
+	  "public/images/collections/alligator_clips/devi_shringar_clips.jpg": {
+          "Code": "AC-NS-DSC-001",
+          "Name": "Devi Shringar Clips",
+          "Price": "130",
+          "rating": "4.5",
+          "stock": 4,
+          "isCustomizable": false,
+          "isBestSeller": true
+        },
+		"public/images/collections/alligator_clips/navratri_rangoli_bow.jpg": {
+          "Code": "AC-NS-NRB-001",
+          "Name": "Navratri Rangoli Bow",
+          "Price": "150",
+          "rating": "4.6",
+          "stock": 7,
+          "isCustomizable": false,
+          "isBestSeller": true
+        },
+		"public/images/collections/alligator_clips/navshakti_bow.jpg": {
+          "Code": "AC-NS-NB-001",
+          "Name": "Navshakti Bow",
+          "Price": "120",
+          "rating": "4.7",
+          "stock": 3,
+          "isCustomizable": false,
+          "isBestSeller": true
+        },
+		"public/images/collections/alligator_clips/raas_rangiya_bow.jpg": {
+          "Code": "AC-NS-RRB-001",
+          "Name": "Raas Rangiya Bow",
+          "Price": "120",
+          "rating": "4.9",
+          "stock": 10,
+          "isCustomizable": false,
+          "isBestSeller": true
+        },
+		"public/images/collections/alligator_clips/raasleela_bow.jpg": {
+          "Code": "AC-NS-RB-001",
+          "Name": "Raasleela Bow",
+          "Price": "150",
+          "rating": "4.6",
+          "stock": 5,
+          "isCustomizable": false,
+          "isBestSeller": true
+        },
+		"public/images/collections/alligator_clips/rang_rasiya_tassel_bow.jpg": {
+          "Code": "AC-NS-RRTB-001",
+          "Name": "Rang Rasiya Tassel Bow",
+          "Price": "120",
+          "rating": "4.6",
+          "stock": 7,
+          "isCustomizable": false,
+          "isBestSeller": true
+        },
       "Butterfly Alligator Clips": {
         "public/images/collections/alligator_clips/butterfly_alligator_clips/purple.jpg": {
           "Code": "AC-BAC-PLE-001",

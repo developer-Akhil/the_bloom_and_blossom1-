@@ -29,6 +29,12 @@ export interface ProductVariant {
   price?: number;
 }
 
+export interface FestivalSettings {
+  enabled: boolean;
+  title: string;
+  subtitle?: string;
+}
+
 export interface Product {
   id: string;
   code?: string;
@@ -43,6 +49,7 @@ export interface Product {
   isBestSeller?: boolean;
   isNewArrival?: boolean;
   isOnSale?: boolean;
+  isFestival?: boolean;
   originalPrice?: number;
   rating?: number;
   reviews?: Review[];

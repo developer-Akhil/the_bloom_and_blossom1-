@@ -16,6 +16,12 @@ interface ProductSettings {
   best_sellers: string[];
   new_arrivals: string[];
   on_sale: string[];
+  festival: string[];
+  festival_config: {
+    enabled: boolean;
+    title: string;
+    subtitle?: string;
+  };
   descriptions: Record<string, string>;
   updated_at: string;
 }
@@ -39,6 +45,16 @@ function getStoredSettings(): ProductSettings {
         best_sellers: Array.isArray(parsed.best_sellers) ? parsed.best_sellers : [],
         new_arrivals: Array.isArray(parsed.new_arrivals) ? parsed.new_arrivals : [],
         on_sale: Array.isArray(parsed.on_sale) ? parsed.on_sale : [],
+        festival: Array.isArray(parsed.festival) ? parsed.festival : [],
+        festival_config: parsed.festival_config && typeof parsed.festival_config === 'object' ? {
+          enabled: parsed.festival_config.enabled !== false,
+          title: parsed.festival_config.title || "Festival / Occasion",
+          subtitle: parsed.festival_config.subtitle || "Handcrafted festive hair accessories & special occasion drops."
+        } : {
+          enabled: true,
+          title: "Festival / Occasion",
+          subtitle: "Handcrafted festive hair accessories & special occasion drops."
+        },
         descriptions: parsed.descriptions || {},
         updated_at: parsed.updated_at || new Date().toISOString()
       };
@@ -54,6 +70,12 @@ function getStoredSettings(): ProductSettings {
     best_sellers: [],
     new_arrivals: [],
     on_sale: [],
+    festival: [],
+    festival_config: {
+      enabled: true,
+      title: "Festival / Occasion",
+      subtitle: "Handcrafted festive hair accessories & special occasion drops."
+    },
     descriptions: {},
     updated_at: new Date().toISOString()
   };
@@ -267,6 +289,7 @@ router.post("/attributes", async (req, res) => {
     const bestSellersSet = new Set(current.best_sellers);
     const newArrivalsSet = new Set(current.new_arrivals);
     const onSaleSet = new Set(current.on_sale);
+    const festivalSet = new Set(current.festival || []);
     const originalPrices = { ...current.original_prices };
     const descriptions = { ...current.descriptions };
 
@@ -283,6 +306,10 @@ router.post("/attributes", async (req, res) => {
         if (attrs.is_on_sale) onSaleSet.add(id);
         else onSaleSet.delete(id);
       }
+      if (attrs.is_festival !== undefined) {
+        if (attrs.is_festival) festivalSet.add(id);
+        else festivalSet.delete(id);
+      }
       if (attrs.original_price !== undefined) {
         originalPrices[id] = attrs.original_price;
       }
@@ -295,6 +322,7 @@ router.post("/attributes", async (req, res) => {
       best_sellers: Array.from(bestSellersSet),
       new_arrivals: Array.from(newArrivalsSet),
       on_sale: Array.from(onSaleSet),
+      festival: Array.from(festivalSet),
       original_prices: originalPrices,
       descriptions: descriptions
     });
@@ -310,6 +338,7 @@ router.post("/attributes", async (req, res) => {
           if (attrs.is_best_seller !== undefined) payload.is_best_seller = attrs.is_best_seller;
           if (attrs.is_new_arrival !== undefined) payload.is_new_arrival = attrs.is_new_arrival;
           if (attrs.is_on_sale !== undefined) payload.is_on_sale = attrs.is_on_sale;
+          if (attrs.is_festival !== undefined) payload.is_festival = attrs.is_festival;
           if (attrs.original_price !== undefined) payload.original_price = attrs.original_price;
           if (attrs.description !== undefined) payload.description = attrs.description;
 
@@ -327,11 +356,33 @@ router.post("/attributes", async (req, res) => {
       best_sellers: saved.best_sellers,
       new_arrivals: saved.new_arrivals,
       on_sale: saved.on_sale,
+      festival: saved.festival,
       original_prices: saved.original_prices,
       descriptions: saved.descriptions
     });
   } catch (error: any) {
     console.error("Admin Attributes Sync Error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post("/festival-config", async (req, res) => {
+  try {
+    const { enabled, title, subtitle } = req.body;
+    const current = getStoredSettings();
+    const newConfig = {
+      enabled: enabled !== undefined ? !!enabled : current.festival_config.enabled,
+      title: title !== undefined ? String(title).trim() || "Festival / Occasion" : current.festival_config.title,
+      subtitle: subtitle !== undefined ? String(subtitle).trim() : current.festival_config.subtitle
+    };
+
+    const saved = saveStoredSettings({
+      festival_config: newConfig
+    });
+
+    res.json({ success: true, festival_config: saved.festival_config });
+  } catch (error: any) {
+    console.error("Admin Festival Config Sync Error:", error);
     res.status(500).json({ error: error.message });
   }
 });
