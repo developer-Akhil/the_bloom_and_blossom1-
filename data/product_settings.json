@@ -48,7 +48,6 @@
   ],
   "on_sale": [],
   "festival": [
-    "prod_grp_1023",
     "prod_1023",
     "prod_1024",
     "prod_1025",
@@ -59,9 +58,9 @@
   ],
   "festival_config": {
     "enabled": true,
-    "title": "Festival / Occasion",
+    "title": "Navratri Special",
     "subtitle": "Handcrafted festive hair accessories & special occasion drops."
   },
   "descriptions": {},
-  "updated_at": "2026-08-24T17:01:41.669Z"
+  "updated_at": "2026-08-24T17:22:35.124Z"
 }
