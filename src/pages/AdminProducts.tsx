@@ -4,10 +4,11 @@ import { products as baseProducts } from '../data/products';
 import { updateDynamicPrice, updateDynamicPricesBatch, useDynamicProducts, updateBestSellers, updateNewArrivals, updateAvailabilityBatch, updateOnSale, updateOriginalPricesBatch, updateDescriptionsBatch } from '../lib/dynamicPricing';
 import { Settings, Save, CheckCircle2, ShieldAlert, IndianRupee, LogOut, Star, Sparkles, Package, PackageX, Tag } from 'lucide-react';
 import { useAdminAuth } from '../context/AdminAuthContext';
+import { useProductContext } from '../context/ProductContext';
 
 export function AdminProducts() {
   const { isAdminAuthenticated, logout } = useAdminAuth();
-  const dynamicProducts = useDynamicProducts(baseProducts);
+  const { products: dynamicProducts, refreshProducts } = useProductContext();
   const [edits, setEdits] = useState<Record<string, number>>({});
   const [bestSellerEdits, setBestSellerEdits] = useState<Record<string, boolean>>({});
   const [newArrivalEdits, setNewArrivalEdits] = useState<Record<string, boolean>>({});
@@ -109,6 +110,8 @@ export function AdminProducts() {
       if (Object.keys(descriptionEdits).length > 0) {
           await updateDescriptionsBatch(descriptionEdits);
       }
+      
+      await refreshProducts();
       
       setEdits({});
       setBestSellerEdits({});

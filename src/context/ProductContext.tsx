@@ -15,88 +15,205 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export function ProductProvider({ children }: { children: React.ReactNode }) {
   const { assets, allAssets, folders, loading: mediaLoading } = useMediaContext();
+
   const [priceOverrides, setPriceOverrides] = useState<Record<string, number>>(() => {
-    const localPrices = localStorage.getItem('bloom_dynamic_prices');
-    return localPrices ? JSON.parse(localPrices) : {};
-  });
-  const [bestSellersSet, setBestSellersSet] = useState<Set<string>>(() => {
-    const localBestSellers = localStorage.getItem('bloom_best_sellers');
-    return localBestSellers ? new Set(JSON.parse(localBestSellers)) : new Set();
-  });
-  const [newArrivalsSet, setNewArrivalsSet] = useState<Set<string>>(() => {
-    const localNewArrivals = localStorage.getItem('bloom_new_arrivals');
-    return localNewArrivals ? new Set(JSON.parse(localNewArrivals)) : new Set();
-  });
-  const [availabilityMap, setAvailabilityMap] = useState<Record<string, boolean>>(() => {
-    const localAvailability = localStorage.getItem('bloom_product_availability');
-    return localAvailability ? JSON.parse(localAvailability) : {};
-  });
-  const [onSaleSet, setOnSaleSet] = useState<Set<string>>(() => {
-    const localOnSale = localStorage.getItem('bloom_on_sale');
-    return localOnSale ? new Set(JSON.parse(localOnSale)) : new Set();
-  });
-  const [originalPriceOverrides, setOriginalPriceOverrides] = useState<Record<string, number>>(() => {
-    const localPrices = localStorage.getItem('bloom_original_prices');
-    return localPrices ? JSON.parse(localPrices) : {};
-  });
-  const [descriptionOverrides, setDescriptionOverrides] = useState<Record<string, string>>(() => {
-    const localDesc = localStorage.getItem('bloom_descriptions');
-    return localDesc ? JSON.parse(localDesc) : {};
-  });
-
-  const fetchSupabaseData = useCallback(async () => {
     try {
-      const { data: priceData, error: priceError } = await supabase.from('dynamic_prices').select('product_id, price');
-      if (!priceError && priceData && priceData.length > 0) {
-        const newMap = JSON.parse(localStorage.getItem('bloom_dynamic_prices') || '{}');
-        priceData.forEach(item => { newMap[item.product_id] = item.price; });
-        localStorage.setItem('bloom_dynamic_prices', JSON.stringify(newMap));
-        setPriceOverrides(newMap);
-      }
+      const localPrices = localStorage.getItem('bloom_dynamic_prices');
+      return localPrices ? JSON.parse(localPrices) : {};
+    } catch {
+      return {};
+    }
+  });
 
+  const [bestSellersSet, setBestSellersSet] = useState<Set<string>>(() => {
+    try {
+      const localBestSellers = localStorage.getItem('bloom_best_sellers');
+      return localBestSellers ? new Set(JSON.parse(localBestSellers)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
+
+  const [newArrivalsSet, setNewArrivalsSet] = useState<Set<string>>(() => {
+    try {
+      const localNewArrivals = localStorage.getItem('bloom_new_arrivals');
+      return localNewArrivals ? new Set(JSON.parse(localNewArrivals)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
+
+  const [availabilityMap, setAvailabilityMap] = useState<Record<string, boolean>>(() => {
+    try {
+      const localAvailability = localStorage.getItem('bloom_product_availability');
+      return localAvailability ? JSON.parse(localAvailability) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const [onSaleSet, setOnSaleSet] = useState<Set<string>>(() => {
+    try {
+      const localOnSale = localStorage.getItem('bloom_on_sale');
+      return localOnSale ? new Set(JSON.parse(localOnSale)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
+
+  const [originalPriceOverrides, setOriginalPriceOverrides] = useState<Record<string, number>>(() => {
+    try {
+      const localPrices = localStorage.getItem('bloom_original_prices');
+      return localPrices ? JSON.parse(localPrices) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const [descriptionOverrides, setDescriptionOverrides] = useState<Record<string, string>>(() => {
+    try {
+      const localDesc = localStorage.getItem('bloom_descriptions');
+      return localDesc ? JSON.parse(localDesc) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const [isServerLoaded, setIsServerLoaded] = useState(false);
+
+  // Fetch product settings (availability, prices, attributes) from Server API (works across all devices)
+  const fetchProductSettings = useCallback(async () => {
+    try {
+      // 1. Fetch from server API endpoint (persisted across all devices)
+      const res = await fetch('/api/products/settings');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.settings) {
+          const { 
+            availability, 
+            pricing, 
+            original_prices, 
+            best_sellers, 
+            new_arrivals, 
+            on_sale, 
+            descriptions 
+          } = json.settings;
+
+          if (availability && typeof availability === 'object') {
+            setAvailabilityMap(availability);
+            localStorage.setItem('bloom_product_availability', JSON.stringify(availability));
+          }
+
+          if (pricing && typeof pricing === 'object') {
+            setPriceOverrides(pricing);
+            localStorage.setItem('bloom_dynamic_prices', JSON.stringify(pricing));
+          }
+
+          if (original_prices && typeof original_prices === 'object') {
+            setOriginalPriceOverrides(original_prices);
+            localStorage.setItem('bloom_original_prices', JSON.stringify(original_prices));
+          }
+
+          if (Array.isArray(best_sellers)) {
+            setBestSellersSet(new Set(best_sellers));
+            localStorage.setItem('bloom_best_sellers', JSON.stringify(best_sellers));
+          }
+
+          if (Array.isArray(new_arrivals)) {
+            setNewArrivalsSet(new Set(new_arrivals));
+            localStorage.setItem('bloom_new_arrivals', JSON.stringify(new_arrivals));
+          }
+
+          if (Array.isArray(on_sale)) {
+            setOnSaleSet(new Set(on_sale));
+            localStorage.setItem('bloom_on_sale', JSON.stringify(on_sale));
+          }
+
+          if (descriptions && typeof descriptions === 'object') {
+            setDescriptionOverrides(descriptions);
+            localStorage.setItem('bloom_descriptions', JSON.stringify(descriptions));
+          }
+
+          setIsServerLoaded(true);
+        }
+      }
+    } catch (apiErr) {
+      console.warn("Could not fetch /api/products/settings:", apiErr);
+    }
+
+    // 2. Fallback / Direct Supabase sync if configured
+    try {
       const { data: availData, error: availError } = await supabase.from('product_availability').select('product_id, in_stock');
       if (!availError && availData && availData.length > 0) {
-        const availMap = JSON.parse(localStorage.getItem('bloom_product_availability') || '{}');
-        availData.forEach(item => { availMap[item.product_id] = item.in_stock; });
-        localStorage.setItem('bloom_product_availability', JSON.stringify(availMap));
-        setAvailabilityMap(availMap);
+        setAvailabilityMap(prev => {
+          const next = { ...prev };
+          availData.forEach(item => { next[item.product_id] = item.in_stock; });
+          localStorage.setItem('bloom_product_availability', JSON.stringify(next));
+          return next;
+        });
+      }
+
+      const { data: priceData, error: priceError } = await supabase.from('dynamic_prices').select('product_id, price');
+      if (!priceError && priceData && priceData.length > 0) {
+        setPriceOverrides(prev => {
+          const next = { ...prev };
+          priceData.forEach(item => { next[item.product_id] = item.price; });
+          localStorage.setItem('bloom_dynamic_prices', JSON.stringify(next));
+          return next;
+        });
       }
 
       const { data: attrData, error: attrError } = await supabase.from('product_attributes').select('*');
       if (!attrError && attrData && attrData.length > 0) {
-         const newBestSellers = new Set<string>(JSON.parse(localStorage.getItem('bloom_best_sellers') || '[]'));
-         const newNewArrivals = new Set<string>(JSON.parse(localStorage.getItem('bloom_new_arrivals') || '[]'));
-         const newOnSale = new Set<string>(JSON.parse(localStorage.getItem('bloom_on_sale') || '[]'));
-         const newOriginalPrices = JSON.parse(localStorage.getItem('bloom_original_prices') || '{}');
-         const newDescriptions = JSON.parse(localStorage.getItem('bloom_descriptions') || '{}');
+         const newBestSellers = new Set<string>();
+         const newNewArrivals = new Set<string>();
+         const newOnSale = new Set<string>();
+         const newOriginalPrices: Record<string, number> = {};
+         const newDescriptions: Record<string, string> = {};
 
          attrData.forEach(item => {
-            if (item.is_best_seller) newBestSellers.add(item.product_id); else newBestSellers.delete(item.product_id);
-            if (item.is_new_arrival) newNewArrivals.add(item.product_id); else newNewArrivals.delete(item.product_id);
-            if (item.is_on_sale) newOnSale.add(item.product_id); else newOnSale.delete(item.product_id);
-            if (item.original_price !== null) newOriginalPrices[item.product_id] = item.original_price;
-            if (item.description !== null) newDescriptions[item.product_id] = item.description;
+            if (item.is_best_seller) newBestSellers.add(item.product_id);
+            if (item.is_new_arrival) newNewArrivals.add(item.product_id);
+            if (item.is_on_sale) newOnSale.add(item.product_id);
+            if (item.original_price !== null && item.original_price !== undefined) newOriginalPrices[item.product_id] = item.original_price;
+            if (item.description !== null && item.description !== undefined) newDescriptions[item.product_id] = item.description;
          });
 
-         localStorage.setItem('bloom_best_sellers', JSON.stringify(Array.from(newBestSellers)));
-         localStorage.setItem('bloom_new_arrivals', JSON.stringify(Array.from(newNewArrivals)));
-         localStorage.setItem('bloom_on_sale', JSON.stringify(Array.from(newOnSale)));
-         localStorage.setItem('bloom_original_prices', JSON.stringify(newOriginalPrices));
-         localStorage.setItem('bloom_descriptions', JSON.stringify(newDescriptions));
-
-         setBestSellersSet(newBestSellers);
-         setNewArrivalsSet(newNewArrivals);
-         setOnSaleSet(newOnSale);
-         setOriginalPriceOverrides(newOriginalPrices);
-         setDescriptionOverrides(newDescriptions);
+         if (newBestSellers.size > 0) {
+           setBestSellersSet(newBestSellers);
+           localStorage.setItem('bloom_best_sellers', JSON.stringify(Array.from(newBestSellers)));
+         }
+         if (newNewArrivals.size > 0) {
+           setNewArrivalsSet(newNewArrivals);
+           localStorage.setItem('bloom_new_arrivals', JSON.stringify(Array.from(newNewArrivals)));
+         }
+         if (newOnSale.size > 0) {
+           setOnSaleSet(newOnSale);
+           localStorage.setItem('bloom_on_sale', JSON.stringify(Array.from(newOnSale)));
+         }
+         if (Object.keys(newOriginalPrices).length > 0) {
+           setOriginalPriceOverrides(prev => ({ ...prev, ...newOriginalPrices }));
+           localStorage.setItem('bloom_original_prices', JSON.stringify(newOriginalPrices));
+         }
+         if (Object.keys(newDescriptions).length > 0) {
+           setDescriptionOverrides(prev => ({ ...prev, ...newDescriptions }));
+           localStorage.setItem('bloom_descriptions', JSON.stringify(newDescriptions));
+         }
       }
-    } catch (e) {
-      console.error("Supabase sync Error:", e);
+    } catch (supabaseErr) {
+      // Supabase is optional
     }
   }, []);
 
   useEffect(() => {
-    fetchSupabaseData();
+    fetchProductSettings();
+
+    // Re-fetch when browser window/tab regains focus
+    const onFocus = () => {
+      fetchProductSettings();
+    };
+    window.addEventListener('focus', onFocus);
+
     const handleUpdate = () => {
       const localPrices = localStorage.getItem('bloom_dynamic_prices');
       if (localPrices) setPriceOverrides(JSON.parse(localPrices));
@@ -133,7 +250,9 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener('on_sale_updated', handleOnSaleUpdate);
     window.addEventListener('original_price_updated', handleOriginalPricesUpdate);
     window.addEventListener('descriptions_updated', handleDescriptionsUpdate);
+
     return () => {
+       window.removeEventListener('focus', onFocus);
        window.removeEventListener('dynamic_price_updated', handleUpdate);
        window.removeEventListener('best_sellers_updated', handleBestSellersUpdate);
        window.removeEventListener('new_arrivals_updated', handleNewArrivalsUpdate);
@@ -142,42 +261,52 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
        window.removeEventListener('original_price_updated', handleOriginalPricesUpdate);
        window.removeEventListener('descriptions_updated', handleDescriptionsUpdate);
     };
-  }, [fetchSupabaseData]);
+  }, [fetchProductSettings]);
 
   const mergedProducts = useMemo(() => {
     const consumedAssetIds = new Set<string>();
 
     let updatedProducts = baseProducts.map((product) => {
       let updatedProduct = { ...product };
-      if (priceOverrides[product.id]) updatedProduct.price = priceOverrides[product.id];
+
+      // 1. Dynamic Pricing Override
+      if (priceOverrides[product.id] !== undefined && priceOverrides[product.id] > 0) {
+        updatedProduct.price = priceOverrides[product.id];
+      }
       
-      const adminBestSellersStr = localStorage.getItem('bloom_best_sellers');
-      if (adminBestSellersStr) {
-          updatedProduct.isBestSeller = bestSellersSet.has(product.id);
+      // 2. Best Seller Status
+      if (bestSellersSet.size > 0) {
+        updatedProduct.isBestSeller = bestSellersSet.has(product.id);
       }
 
-      const adminNewArrivalsStr = localStorage.getItem('bloom_new_arrivals');
-      if (adminNewArrivalsStr) {
-          updatedProduct.isNewArrival = newArrivalsSet.has(product.id);
+      // 3. New Arrival Status
+      if (newArrivalsSet.size > 0) {
+        updatedProduct.isNewArrival = newArrivalsSet.has(product.id);
       }
 
-      const adminOnSaleStr = localStorage.getItem('bloom_on_sale');
-      if (adminOnSaleStr) {
-          updatedProduct.isOnSale = onSaleSet.has(product.id);
+      // 4. On Sale Status
+      if (onSaleSet.size > 0) {
+        updatedProduct.isOnSale = onSaleSet.has(product.id);
       }
 
-      if (originalPriceOverrides[product.id]) {
-          updatedProduct.originalPrice = originalPriceOverrides[product.id];
-      }
-      if (descriptionOverrides[product.id]) {
-          updatedProduct.description = descriptionOverrides[product.id];
+      // 5. Original Price Override
+      if (originalPriceOverrides[product.id] !== undefined && originalPriceOverrides[product.id] > 0) {
+        updatedProduct.originalPrice = originalPriceOverrides[product.id];
       }
 
-      const adminAvailStr = localStorage.getItem('bloom_product_availability');
-      if (adminAvailStr) {
-          updatedProduct.inStock = availabilityMap[product.id] !== false;
+      // 6. Description Override
+      if (descriptionOverrides[product.id] !== undefined && descriptionOverrides[product.id].trim() !== '') {
+        updatedProduct.description = descriptionOverrides[product.id];
+      }
+
+      // 7. Product Availability (In Stock / Out of Stock)
+      // Check server availabilityMap first (keyed by product ID), fallback to base product inStock
+      if (availabilityMap[product.id] !== undefined) {
+        updatedProduct.inStock = availabilityMap[product.id] === true;
+      } else if (product.inStock !== undefined) {
+        updatedProduct.inStock = product.inStock;
       } else {
-          updatedProduct.inStock = true;
+        updatedProduct.inStock = true;
       }
 
       const productAssets = allAssets.filter(a => a.id.startsWith(`builtin_${product.id}_`));
@@ -200,8 +329,6 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
             const keywords = product.name.toLowerCase().split(' ')
                  .filter(k => !ignoreWords.has(k) && k.length > 2);
                  
-            // If we successfully filtered it down to distinguishing words, use those. 
-            // If it's empty (e.g. the product name is just "Scrunchies"), fallback to just requiring the name.
             if (keywords.length > 0) {
                return keywords.some(k => searchName.includes(k));
             }
@@ -235,40 +362,44 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         if (asset.folder_id === 'product_images' && productName.toLowerCase() === categoryTitle.toLowerCase()) return;
 
         const productId = `custom_${asset.id}`;
-        let isBestSeller = false;
-        let isNewArrival = false;
-        let inStock = true;
-        const adminBestSellersStr = localStorage.getItem('bloom_best_sellers');
-        if (adminBestSellersStr) {
-           isBestSeller = bestSellersSet.has(productId);
-        }
-        const adminNewArrivalsStr = localStorage.getItem('bloom_new_arrivals');
-        if (adminNewArrivalsStr) {
-           isNewArrival = newArrivalsSet.has(productId);
-        }
-        const adminAvailStr = localStorage.getItem('bloom_product_availability');
-        if (adminAvailStr) {
-           inStock = availabilityMap[productId] !== false;
-        }
+        const inStock = availabilityMap[productId] !== undefined ? availabilityMap[productId] === true : true;
+        const isBestSeller = bestSellersSet.has(productId);
+        const isNewArrival = newArrivalsSet.has(productId);
+        const isOnSale = onSaleSet.has(productId);
 
         newlyConstructedProducts.push({
            id: productId,
            name: productName, 
            category: categoryTitle,
            price: priceOverrides[productId] || 149,
+           originalPrice: originalPriceOverrides[productId],
            description: descriptionOverrides[productId] || `Beautifully handcrafted ${categoryTitle}.`,
            images: [asset.file_url],
-           stock: 10,
+           stock: inStock ? 10 : 0,
            inStock,
            isCustomizable: false,
            isBestSeller,
            isNewArrival,
+           isOnSale,
            rating: 5.0
         });
     });
 
     return [...updatedProducts, ...newlyConstructedProducts];
-  }, [baseProducts, assets, allAssets, folders, priceOverrides, originalPriceOverrides, descriptionOverrides, bestSellersSet, newArrivalsSet, availabilityMap, onSaleSet]);
+  }, [
+    baseProducts, 
+    assets, 
+    allAssets, 
+    folders, 
+    priceOverrides, 
+    originalPriceOverrides, 
+    descriptionOverrides, 
+    bestSellersSet, 
+    newArrivalsSet, 
+    availabilityMap, 
+    onSaleSet, 
+    isServerLoaded
+  ]);
 
   const mergedCategories = useMemo(() => {
     const adminFolders = folders
@@ -289,7 +420,12 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
   }, [folders]);
 
   return (
-    <ProductContext.Provider value={{ products: mergedProducts, categories: mergedCategories, loading: mediaLoading, refreshProducts: fetchSupabaseData }}>
+    <ProductContext.Provider value={{ 
+      products: mergedProducts, 
+      categories: mergedCategories, 
+      loading: mediaLoading, 
+      refreshProducts: fetchProductSettings 
+    }}>
       {children}
     </ProductContext.Provider>
   );

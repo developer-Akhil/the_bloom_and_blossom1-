@@ -1,0 +1,49 @@
+{
+  "availability": {
+    "test-product": false,
+    "prod_1000": true,
+    "prod_1040": true,
+    "prod_1034": false,
+    "prod_1033": false,
+    "prod_1032": false,
+    "prod_1031": true,
+    "prod_1030": true,
+    "prod_1035": false,
+    "prod_1036": false,
+    "prod_1038": true,
+    "prod_1002": false,
+    "prod_1004": false,
+    "prod_1009": false,
+    "prod_1012": false,
+    "prod_1013": false,
+    "prod_1020": false,
+    "prod_1021": false,
+    "prod_grp_1024": false,
+    "prod_1037": false
+  },
+  "pricing": {
+    "1": 200,
+    "4": 120,
+    "14": 320,
+    "auto_1000": 70,
+    "auto_1001": 70,
+    "auto_1002": 70
+  },
+  "original_prices": {},
+  "best_sellers": [
+    "prod_1001",
+    "prod_1002",
+    "prod_1006",
+    "prod_1007",
+    "prod_1013",
+    "prod_grp_1020",
+    "prod_1040",
+    "prod_grp_1046",
+    "prod_1058",
+    "prod_1065"
+  ],
+  "new_arrivals": [],
+  "on_sale": [],
+  "descriptions": {},
+  "updated_at": "2026-08-24T09:55:19.728Z"
+}
