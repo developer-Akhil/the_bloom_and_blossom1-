@@ -321,5 +321,3 @@ Object.keys(diskImages).forEach(path => {
     });
 });
 
-console.log('PRODUCTS DUMP:', products.filter(p => p.name.includes('Pearl')));
-

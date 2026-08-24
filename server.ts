@@ -27,27 +27,12 @@ async function startServer() {
   // Comprehensive request logging
   app.use((req, _res, next) => {
     console.log(`[Incoming Request] ${req.method} ${req.url}`);
-    console.log(`[Headers] ${JSON.stringify({
-      ip: req.ip,
-      'x-forwarded-for': req.headers['x-forwarded-for'],
-      'forwarded': req.headers['forwarded']
-    })}`);
     next();
   });
 
-/*
-  // Security Middleware
-  app.use(helmet({
-    contentSecurityPolicy: false, // Too restrictive by default for React/Vite
-    crossOriginEmbedderPolicy: false,
-  }));
-*/
-
-  // CORS - very permissive for debugging
+  // CORS
   app.use(cors({
-    origin: function (origin, callback) {
-      console.log(`[CORS Request] Origin: ${origin}`);
-      // Allow all origins in development and potentially production for debugging
+    origin: function (_origin, callback) {
       callback(null, true);
     },
     credentials: true,
@@ -60,25 +45,6 @@ async function startServer() {
 
   // Request Logging
   app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
-
-  // Rate Limiting
-  /*
-  const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-    message: { error: "Too many requests, please try again later." }
-  });
-
-  app.use("/api", apiLimiter);
-  */
-
-  // Request logging for debugging routing issues in production
-  app.use("/api", (req, _res, next) => {
-    console.log(`[API Request] ${req.method} ${req.url}`);
-    next();
-  });
 
   app.use(express.json({ 
     limit: '50mb',
@@ -232,37 +198,6 @@ async function startServer() {
   app.use("/api/admin", adminRoutes);
   app.use("/api/reviews", reviewRoutes);
 
-  // Temporary route to test ENV variables (diagnostics)
-  app.get("/api/env-test", (_req, res) => {
-    
-    let keyId = process.env.RAZORPAY_KEY_ID || "";
-    let keySecret = process.env.RAZORPAY_KEY_SECRET || "";
-    
-    keyId = keyId.replace(/^["']|["']$/g, '').trim();
-    keySecret = keySecret.replace(/^["']|["']$/g, '').trim();
-
-    res.json({
-      nodeEnv: process.env.NODE_ENV,
-      port: process.env.PORT,
-      hasRazorpayId: !!process.env.RAZORPAY_KEY_ID,
-      hasRazorpaySecret: !!process.env.RAZORPAY_KEY_SECRET,
-      razorpayIdLength: keyId.length,
-      razorpaySecretLength: keySecret.length,
-      razorpayIdSegment: keyId ? `${keyId.substring(0, 4)}...${keyId.substring(keyId.length - 2)}` : null,
-      keys: Object.keys(process.env).length
-    });
-  });
-
-  // Fallback for unmatched API routes
-  app.all("/api/*", (req, res) => {
-    console.warn(`[Unmatched API Route] ${req.method} ${req.url}`);
-    res.status(404).json({ 
-      error: "API route not found", 
-      method: req.method, 
-      path: req.url 
-    });
-  });
-
   app.post("/api/upload-image", (req, res) => {
     const { folderId, fileName, base64Data } = req.body;
     if (!folderId || !fileName || !base64Data) {
@@ -294,14 +229,14 @@ async function startServer() {
       const publicUrl = `/images/${subParts.join('/')}/${safeFileName}`;
 
       res.json({ success: true, url: publicUrl });
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
       res.status(500).json({ error: e.message });
     }
   });
 
   app.post("/api/create-folder", (req, res) => {
-    const { name, parent } = req.body;
+    const { name } = req.body;
     if (!name) return res.status(400).json({ error: "Folder name is required" });
 
     // Ensure we create strings safely
@@ -319,10 +254,20 @@ async function startServer() {
         fs.writeFileSync(path.join(targetPath, ".keep"), "");
       }
       res.json({ success: true, path: targetPath });
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
       res.status(500).json({ error: e.message });
     }
+  });
+
+  // Fallback for unmatched API routes
+  app.all("/api/*", (req, res) => {
+    console.warn(`[Unmatched API Route] ${req.method} ${req.url}`);
+    res.status(404).json({ 
+      error: "API route not found", 
+      method: req.method, 
+      path: req.url 
+    });
   });
 
   // Vite middleware for development
