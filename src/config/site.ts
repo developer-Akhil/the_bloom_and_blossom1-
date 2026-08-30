@@ -19,7 +19,11 @@ export const siteConfig = {
     instagramHandle: "@bloomandblossom.official",
     youtube: "https://www.youtube.com/@thebloomandblossom",
     facebook: "https://www.facebook.com/share/1GMNfXQki9/",
-    whatsapp: "https://wa.me/message/6IMAWM55WUTII1"
+    whatsapp: "https://wa.me/message/6IMAWM55WUTII1",
+    googleReviewUrl: "https://www.google.com/search?q=the+bloom+and+blossom#lrd=0x390947db0dc7d7db:0x55e61aac6cb14f5f,3,,,,",
+    googleMapsUrl: "https://www.google.com/search?q=the+bloom+and+blossom#lrd=0x390947db0dc7d7db:0x55e61aac6cb14f5f,1,,,,",
+    trustpilotUrl: "https://www.trustpilot.com/review/bloomandblossom.in",
+    websiteReviewsUrl: "https://bloomandblossom.in/feedback"
   },
   api: {
     payment: {

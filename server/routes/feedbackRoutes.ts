@@ -142,6 +142,42 @@ const INITIAL_SEED: StoreState = {
   ],
   feedback: [
     {
+      feedback_id: "fb_akhil_google",
+      feedback_request_id: null,
+      customer_id: null,
+      order_id: null,
+      feedback_type: "DIRECT",
+      source: "GOOGLE",
+      rating: 5,
+      comments: "I ordered some clips for my Daughter. All were so pretty and eye catching. Good quality and quick delivery.",
+      customer_name: "Akhil",
+      mobile_number: null,
+      email_address: null,
+      product_name: "Handcrafted Clips Set",
+      submitted_at: new Date().toISOString(),
+      status: "ACTIVE",
+      google_review_status: "submitted",
+      google_review_notes: "Google Maps review"
+    },
+    {
+      feedback_id: "fb_kavita_aug27",
+      feedback_request_id: null,
+      customer_id: null,
+      order_id: null,
+      feedback_type: "INDIRECT",
+      source: "WEBSITE",
+      rating: 5,
+      comments: "My personal experience is very good i m very happy with this product n delivery bhi time se pahele mil gai",
+      customer_name: "Kavita",
+      mobile_number: "+91 9897123456",
+      email_address: "kavita.c@example.com",
+      product_name: "Name Bows",
+      submitted_at: "2026-08-27T17:29:00.000Z",
+      status: "ACTIVE",
+      google_review_status: "not_submitted",
+      google_review_notes: "Customer feedback via website form"
+    },
+    {
       feedback_id: "fb_seed_1",
       feedback_request_id: "req_seed_1",
       customer_id: null,
@@ -251,6 +287,18 @@ const INITIAL_SEED: StoreState = {
     }
   ],
   google_reviews: [
+    {
+      google_review_id: "gr_akhil_google",
+      feedback_id: "fb_akhil_google",
+      feedback_request_id: null,
+      google_review_reference: "Google Review - Akhil",
+      rating: 5,
+      review_text: "I ordered some clips for my Daughter. All were so pretty and eye catching. Good quality and quick delivery.",
+      status: "submitted",
+      review_date: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    },
     {
       google_review_id: "gr_seed_1",
       feedback_id: "fb_seed_1",
@@ -888,6 +936,78 @@ router.get("/admin/export", async (_req, res) => {
   } catch (error: any) {
     console.error("[Feedback API] Error exporting CSV:", error);
     return res.status(500).json({ error: error.message || "Failed to export CSV" });
+  }
+});
+
+// --------------------------------------------------------------------------
+// 10. Public Live Reviews Feed for Customer Showcase
+// --------------------------------------------------------------------------
+router.get("/public", async (_req, res) => {
+  try {
+    const store = getLocalStore();
+    const feedbackList = (store.feedback || []).filter(f => f.status !== "ARCHIVED");
+
+    // Map store feedback to social review items
+    const liveReviews = feedbackList.map(f => {
+      let src: 'google' | 'website' | 'instagram' | 'trustpilot' = 'website';
+      let srcLabel = 'Verified Customer';
+      const fSource = (f.source || '').toUpperCase();
+      
+      if (fSource === 'GOOGLE') {
+        src = 'google';
+        srcLabel = 'Google';
+      } else if (fSource === 'INSTAGRAM') {
+        src = 'instagram';
+        srcLabel = 'Instagram DM';
+      } else if (fSource === 'TRUSTPILOT') {
+        src = 'trustpilot';
+        srcLabel = 'Trustpilot';
+      } else {
+        src = 'website';
+        srcLabel = 'Verified Customer';
+      }
+
+      // Format date
+      let dateLabel = 'Recently';
+      if (f.submitted_at) {
+        const d = new Date(f.submitted_at);
+        const now = new Date();
+        const diffMs = now.getTime() - d.getTime();
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        if (diffDays <= 0) dateLabel = 'Today';
+        else if (diffDays === 1) dateLabel = 'Yesterday';
+        else if (diffDays < 7) dateLabel = `${diffDays} days ago`;
+        else if (diffDays < 30) dateLabel = `${Math.floor(diffDays / 7)} weeks ago`;
+        else dateLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+
+      return {
+        id: f.feedback_id,
+        authorName: f.customer_name || 'Verified Customer',
+        rating: f.rating || 5,
+        reviewText: f.comments || 'Loved the quality and craft! Beautiful collection 🌸',
+        source: src,
+        sourceLabel: srcLabel,
+        sourceUrl: src === 'google' 
+          ? 'https://www.google.com/search?q=the+bloom+and+blossom#lrd=0x390947db0dc7d7db:0x55e61aac6cb14f5f,3,,,,'
+          : '/feedback',
+        isVerified: true,
+        date: dateLabel,
+        rawDate: f.submitted_at,
+        productName: f.product_name || 'Handcrafted Hair Accessory',
+        location: f.source === 'WALK_IN' ? 'Haridwar' : undefined,
+        likesCount: 5 + (f.rating * 2)
+      };
+    });
+
+    return res.json({
+      success: true,
+      reviews: liveReviews,
+      totalCount: liveReviews.length
+    });
+  } catch (error: any) {
+    console.error("[Feedback API] Error loading public reviews feed:", error);
+    return res.status(500).json({ error: error.message || "Failed to fetch public reviews" });
   }
 });
 

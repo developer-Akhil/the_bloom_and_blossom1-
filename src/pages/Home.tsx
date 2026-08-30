@@ -10,6 +10,7 @@ import { type Product } from '../types';
 import { cn } from '../lib/utils';
 
 import { OptimizedImage } from '../components/common/OptimizedImage';
+import { GoogleReviewsSection } from '../components/GoogleReviewsSection';
 
 export function Home() {
   const { products, categories, festivalProducts, festivalConfig } = useProductContext();
@@ -246,6 +247,9 @@ export function Home() {
           </div>
         </div>
       </section>
+
+      {/* Google Reviews & Multi-Source Customer Testimonials */}
+      <GoogleReviewsSection />
 
       {/* Promotional Section */}
       <section className="container mx-auto px-4 md:px-6">

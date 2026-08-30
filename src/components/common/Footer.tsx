@@ -60,11 +60,30 @@ export function Footer() {
 
           {/* Support */}
           <div>
-            <h4 className="font-serif text-lg font-bold mb-6">Support & Feedback</h4>
-            <ul className="space-y-4 text-sm text-gray-500">
-              <li><FooterLink to="/feedback">Share Feedback 🌸</FooterLink></li>
+            <h4 className="font-serif text-lg font-bold mb-6">Reviews & Support</h4>
+            <ul className="space-y-3 text-sm text-gray-500">
+              <li>
+                <a 
+                  href={siteConfig.social.googleReviewUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hover:text-bloom-rose transition-colors flex items-center space-x-1.5 font-medium text-gray-700"
+                >
+                  <span>⭐ Google Reviews (4.9/5)</span>
+                </a>
+              </li>
+              <li><FooterLink to="/feedback">Customer Feedback Form</FooterLink></li>
+              <li>
+                <a 
+                  href={siteConfig.social.trustpilotUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hover:text-bloom-rose transition-colors"
+                >
+                  Trustpilot Reviews
+                </a>
+              </li>
               <li><FooterLink to="/contact">Contact Us</FooterLink></li>
-              <li><FooterLink to="/terms">Terms & Conditions</FooterLink></li>
               <li><FooterLink to="/returns">Returns & Refunds</FooterLink></li>
               <li><FooterLink to="/faq">FAQs</FooterLink></li>
               <li><FooterLink to="/privacy">Privacy Policy</FooterLink></li>

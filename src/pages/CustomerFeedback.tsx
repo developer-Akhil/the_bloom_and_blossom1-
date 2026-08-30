@@ -47,7 +47,7 @@ export function CustomerFeedback() {
   const [googleSubmitting, setGoogleSubmitting] = useState(false);
 
   // Google Review URL
-  const GOOGLE_REVIEW_URL = "https://g.page/r/bloom-and-blossom-reviews/review";
+  const GOOGLE_REVIEW_URL = "https://www.google.com/search?q=the+bloom+and+blossom#lrd=0x390947db0dc7d7db:0x55e61aac6cb14f5f,3,,,,";
 
   // Fetch token details if token is in URL
   useEffect(() => {
