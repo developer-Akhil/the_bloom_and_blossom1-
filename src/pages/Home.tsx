@@ -250,36 +250,6 @@ export function Home() {
 
       {/* Google Reviews & Multi-Source Customer Testimonials */}
       <GoogleReviewsSection />
-
-      {/* Promotional Section */}
-      <section className="container mx-auto px-4 md:px-6">
-        <div className="bg-bloom-rose rounded-[3rem] p-12 md:p-20 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-1/3 h-full bg-white opacity-10 -skew-x-12 translate-x-1/2" />
-          <div className="relative z-10 flex flex-col items-center text-center space-y-8 max-w-3xl mx-auto">
-            <h2 className="font-serif text-4xl md:text-6xl font-bold text-white leading-tight">
-              Free Shipping on Orders Above ₹2,000
-            </h2>
-            <p className="text-pink-100 text-lg">
-              Join our Bloom Circle and stay updated with new drops, exclusive offers, and styling tips.
-            </p>
-            <div className="flex w-full max-w-md flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-              <input 
-                type="email" 
-                placeholder="Enter your email" 
-                className="flex-grow bg-white/10 border border-white/20 rounded-full px-8 py-4 text-white placeholder:text-pink-200 focus:outline-none focus:ring-2 focus:ring-white/50 backdrop-blur-sm"
-              />
-              <button className="px-8 py-4 bg-white text-bloom-rose rounded-full font-bold hover:bg-gray-100 transition-all shadow-xl">
-                Subscribe
-              </button>
-            </div>
-            <div className="pt-6 border-t border-white/20 w-full text-center">
-              <Link to="/returns" className="text-white hover:text-pink-200 text-sm font-medium underline underline-offset-4 transition-colors">
-                View our Returns & Refunds Policy (Final Sale)
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
