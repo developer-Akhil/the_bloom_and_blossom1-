@@ -1,5 +1,6 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { AnnouncementBar } from './AnnouncementBar';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { WhatsAppButton } from './WhatsAppButton';
@@ -17,6 +18,7 @@ export function Layout() {
 
   return (
     <div className="min-h-screen flex flex-col selection:bg-bloom-rose/20">
+      <AnnouncementBar />
       <Header />
       <main className="flex-grow relative">
         <AnimatePresence mode="wait">

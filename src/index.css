@@ -166,6 +166,36 @@ section {
   to { background-position: 200% center; }
 }
 
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+
+.animate-marquee-slow {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+}
+
+.animate-marquee-fast {
+  display: flex;
+  width: max-content;
+  animation: marquee 18s linear infinite;
+}
+
+.animate-marquee:hover,
+.animate-marquee-slow:hover,
+.animate-marquee-fast:hover {
+  animation-play-state: paused;
+}
+
+
 /* Custom Sage accents */
 .theme-sage .floral-gradient {
   background: radial-gradient(circle at 10% 20%, #F9FAF7 0%, #F4F6F0 100%);

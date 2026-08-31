@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { Settings, LogOut, Package, ShoppingBag, MessageSquare, HeartHandshake, Sparkles } from 'lucide-react';
+import { Settings, LogOut, Package, ShoppingBag, MessageSquare, HeartHandshake, Sparkles, Megaphone } from 'lucide-react';
 import { useAdminAuth } from '../context/AdminAuthContext';
 
 export function Admin() {
@@ -38,7 +38,22 @@ export function Admin() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+          <Link 
+            to="/admin/announcements"
+            className="flex flex-col items-center justify-center p-8 bg-gradient-to-b from-amber-50/40 via-white to-white rounded-3xl shadow-sm border border-amber-200/60 hover:shadow-md hover:-translate-y-1 transition-all group"
+          >
+            <div className="p-4 bg-amber-50 rounded-full group-hover:bg-amber-100 transition-colors mb-4 text-amber-600">
+              <Megaphone size={40} />
+            </div>
+            <div className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full mb-1">
+              <Sparkles size={10} />
+              <span>Storefront Banner</span>
+            </div>
+            <h2 className="text-lg font-bold font-serif text-gray-900 mb-1 text-center">Top Announcements & Offers</h2>
+            <p className="text-gray-500 text-center text-xs">Manage scrolling header messages, free shipping badges, and festive offers.</p>
+          </Link>
+
           <Link 
             to="/admin/feedback"
             className="flex flex-col items-center justify-center p-8 bg-gradient-to-b from-rose-50/50 via-white to-white rounded-3xl shadow-sm border border-rose-200/60 hover:shadow-md hover:-translate-y-1 transition-all group"
@@ -46,7 +61,7 @@ export function Admin() {
             <div className="p-4 bg-rose-50 rounded-full group-hover:bg-bloom-pink transition-colors mb-4 text-bloom-rose">
               <HeartHandshake size={40} />
             </div>
-            <div className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full mb-1">
+            <div className="inline-flex items-center gap-1 bg-rose-100 text-bloom-rose text-[10px] font-bold px-2 py-0.5 rounded-full mb-1">
               <Sparkles size={10} />
               <span>Omni-Channel</span>
             </div>

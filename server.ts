@@ -14,7 +14,7 @@ import orderRoutes from "./server/routes/orderRoutes.js";
 import adminRoutes, { handleGetSettings } from "./server/routes/adminRoutes.js";
 import reviewRoutes from "./server/routes/reviewRoutes.js";
 import feedbackRoutes from "./server/routes/feedbackRoutes.js";
-import { startAutomaticGoogleSync } from "./server/services/googleReviewsSync.js";
+import announcementRoutes from "./server/routes/announcementRoutes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -201,6 +201,7 @@ async function startServer() {
   app.get("/api/products/settings", handleGetSettings);
   app.use("/api/reviews", reviewRoutes);
   app.use("/api/feedback", feedbackRoutes);
+  app.use("/api/announcements", announcementRoutes);
 
   app.post("/api/upload-image", (req, res) => {
     const { folderId, fileName, base64Data } = req.body;
@@ -312,8 +313,6 @@ async function startServer() {
 
   const server = app.listen(PORT, "0.0.0.0", () => {
     console.log(`[Server] Server listening on http://localhost:${PORT}`);
-    // Start background Google Reviews sync scheduler
-    startAutomaticGoogleSync();
   });
 
   server.on('error', (error: any) => {

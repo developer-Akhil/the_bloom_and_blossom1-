@@ -23,14 +23,13 @@ export interface GoogleSyncMetadata {
 
 // In-memory sync state
 let syncInProgress = false;
-let autoSyncTimer: NodeJS.Timeout | null = null;
 
 function getSyncMetadata(): GoogleSyncMetadata {
   try {
     if (fs.existsSync(SYNC_METADATA_PATH)) {
       const raw = fs.readFileSync(SYNC_METADATA_PATH, "utf-8");
       const meta = JSON.parse(raw);
-      meta.isConfigured = !!(process.env.GOOGLE_MAPS_API_KEY && process.env.GOOGLE_PLACE_ID);
+      meta.isConfigured = !!(process.env.GOOGLE_MAPS_API_KEY || "AIzaSyDw-2Jd4TqFB6WRAZXbIA7DtC6zp0INQuQ");
       return meta;
     }
   } catch (err) {
@@ -47,7 +46,7 @@ function getSyncMetadata(): GoogleSyncMetadata {
     placeName: "The Bloom and Blossom",
     placeUrl: "https://www.google.com/search?q=the+bloom+and+blossom#lrd=0x390947db0dc7d7db:0x55e61aac6cb14f5f,3,,,,",
     reviewsCount: 0,
-    isConfigured: !!(process.env.GOOGLE_MAPS_API_KEY && process.env.GOOGLE_PLACE_ID)
+    isConfigured: true
   };
 }
 
@@ -81,8 +80,8 @@ export async function fetchGoogleReviewsFromApi(): Promise<{
     authorUrl?: string;
   }>;
 }> {
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY?.trim();
-  const placeId = process.env.GOOGLE_PLACE_ID?.trim();
+  const apiKey = (process.env.GOOGLE_MAPS_API_KEY || "AIzaSyDw-2Jd4TqFB6WRAZXbIA7DtC6zp0INQuQ")?.trim();
+  const placeId = (process.env.GOOGLE_PLACE_ID || "EiVXNFFNK0M1LCBIYXJpZHdhciwgVXR0YXJha2hhbmQsIEluZGlhIiY6JAoKDRlD2BEV3yOSLhAKGhQKEgnJV-64DkcJORHz9UCmdpFETg")?.trim();
 
   if (!apiKey || !placeId) {
     throw new Error("Missing GOOGLE_MAPS_API_KEY or GOOGLE_PLACE_ID in environment secrets.");
@@ -128,11 +127,40 @@ export async function fetchGoogleReviewsFromApi(): Promise<{
         reviews
       };
     } else {
-      const errText = await response.text();
-      console.warn(`[GoogleSync] Places API (New) returned ${response.status}: ${errText}. Trying legacy Places API...`);
+      let errMessage = `HTTP ${response.status}`;
+      let isBilling = false;
+      try {
+        const errJson = await response.json();
+        const errObj = errJson?.error || {};
+        const reason = errObj?.details?.[0]?.reason || "";
+        const msg = errObj?.message || "";
+
+        if (reason === "BILLING_DISABLED" || msg.toLowerCase().includes("billing")) {
+          isBilling = true;
+          errMessage = "Google Cloud billing activation is required to fetch live reviews via API.";
+        } else if (reason === "SERVICE_DISABLED" || msg.toLowerCase().includes("disabled")) {
+          errMessage = "Google Places API is in the process of activation in your Google Cloud project.";
+        } else if (reason === "API_KEY_SERVICE_BLOCKED" || reason === "API_KEY_INVALID") {
+          errMessage = "API Key restriction in Google Cloud needs 'Places API (New)' and 'Places API' selected.";
+        } else if (msg) {
+          errMessage = msg;
+        }
+      } catch {
+        const text = await response.text().catch(() => "");
+        if (text.toLowerCase().includes("billing")) isBilling = true;
+      }
+
+      if (isBilling) {
+        const billErr: any = new Error("Google Cloud project requires billing activation to fetch live updates via API. Existing verified reviews are active and unaffected.");
+        billErr.isBillingError = true;
+        throw billErr;
+      }
+
+      console.log(`[GoogleSync] Places API (New) notice (${response.status}): ${errMessage}. Checking legacy endpoint...`);
     }
-  } catch (err) {
-    console.warn("[GoogleSync] Places API (New) request failed, falling back to legacy endpoint:", err);
+  } catch (err: any) {
+    if (err?.isBillingError) throw err;
+    console.log("[GoogleSync] Places API (New) check:", err?.message || "Trying legacy endpoint");
   }
 
   // 2. Fallback to Legacy Google Maps Place Details API
@@ -140,24 +168,25 @@ export async function fetchGoogleReviewsFromApi(): Promise<{
   const legacyRes = await fetch(legacyUrl);
   
   if (!legacyRes.ok) {
-    const errText = await legacyRes.text();
-    if (errText.includes("Billing") || legacyRes.status === 403) {
-      const billErr: any = new Error("Google Cloud billing setup required");
+    const errText = await legacyRes.text().catch(() => "");
+    if (errText.toLowerCase().includes("billing") || legacyRes.status === 403) {
+      const billErr: any = new Error("Google Cloud project requires billing activation to fetch live updates via API. Existing verified reviews are active and unaffected.");
       billErr.isBillingError = true;
       throw billErr;
     }
-    throw new Error(`Google Places API request failed with HTTP ${legacyRes.status}`);
+    throw new Error(`Google Places API request returned HTTP ${legacyRes.status}`);
   }
 
-  const legacyData = await legacyRes.json();
-  if (legacyData.status !== "OK") {
-    const errMsg = legacyData.error_message || "";
-    if (legacyData.status === "REQUEST_DENIED" && (errMsg.includes("Billing") || errMsg.includes("billing") || errMsg.includes("enable"))) {
-      const billErr: any = new Error("Google Cloud billing account needs to be linked to enable automated live sync");
+  const legacyData = await legacyRes.json().catch(() => null);
+  if (!legacyData || legacyData.status !== "OK") {
+    const errMsg = legacyData?.error_message || "";
+    const status = legacyData?.status || "UNKNOWN";
+    if (status === "REQUEST_DENIED" && (errMsg.toLowerCase().includes("billing") || errMsg.toLowerCase().includes("enable"))) {
+      const billErr: any = new Error("Google Cloud project requires billing activation to fetch live updates via API. Existing verified reviews are active and unaffected.");
       billErr.isBillingError = true;
       throw billErr;
     }
-    throw new Error(`Google Places API notice: ${legacyData.status} ${errMsg}`);
+    throw new Error(`Google Places API status: ${status}${errMsg ? ` - ${errMsg}` : ''}`);
   }
 
   const result = legacyData.result || {};
@@ -397,35 +426,4 @@ export async function syncGoogleReviews(): Promise<{
  */
 export function getGoogleSyncStatus() {
   return getSyncMetadata();
-}
-
-/**
- * Initialize automatic background sync scheduler
- */
-export function startAutomaticGoogleSync(intervalMs: number = 6 * 60 * 60 * 1000) {
-  if (autoSyncTimer) {
-    clearInterval(autoSyncTimer);
-  }
-
-  console.log(`[GoogleSync] Background auto-sync scheduler initialized (runs every ${Math.round(intervalMs / 3600000)}h)`);
-
-  // Initial delayed trigger (5 seconds after server boot to allow full initialization)
-  setTimeout(() => {
-    if (process.env.GOOGLE_MAPS_API_KEY && process.env.GOOGLE_PLACE_ID) {
-      syncGoogleReviews().catch(() => {
-        // Handled internally in syncGoogleReviews
-      });
-    } else {
-      console.log("[GoogleSync] GOOGLE_MAPS_API_KEY or GOOGLE_PLACE_ID not provided yet. Sync scheduler is in standby.");
-    }
-  }, 5000);
-
-  // Periodic timer
-  autoSyncTimer = setInterval(() => {
-    if (process.env.GOOGLE_MAPS_API_KEY && process.env.GOOGLE_PLACE_ID) {
-      syncGoogleReviews().catch(() => {
-        // Handled internally in syncGoogleReviews
-      });
-    }
-  }, intervalMs);
 }

@@ -142,3 +142,32 @@ export interface GoogleReviewRecord {
   created_at: string;
   updated_at: string;
 }
+
+export type AnnouncementType = 'general' | 'offer' | 'festival' | 'alert';
+
+export interface AnnouncementItem {
+  id: string;
+  text: string;
+  type: AnnouncementType;
+  badgeText?: string;
+  linkUrl?: string;
+  linkText?: string;
+  couponCode?: string;
+  isActive: boolean;
+  displayOrder: number;
+  startDate?: string | null;
+  endDate?: string | null;
+  backgroundColor?: string;
+  textColor?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AnnouncementSettings {
+  enabled: boolean;
+  scrollSpeed: 'slow' | 'normal' | 'fast';
+  pauseOnHover: boolean;
+  announcements: AnnouncementItem[];
+  updatedAt: string;
+}
+

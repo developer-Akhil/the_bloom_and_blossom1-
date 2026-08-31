@@ -434,22 +434,22 @@ export function AdminFeedback() {
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="font-bold text-gray-900 text-base md:text-lg flex items-center gap-1.5">
-                  <span>Google Reviews Auto-Sync</span>
+                  <span>Google Reviews Sync</span>
                   {syncStatus.billingRequired || syncStatus.status === 'standby' ? (
                     <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full" title="Google Cloud billing link needed to enable live API queries">
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                      Configured • Standby (Billing Activation)
+                      On-Demand • Standby (Billing Activation)
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1 text-[11px] font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
-                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                      {syncStatus.isConfigured ? 'Connected & Active' : 'Active'}
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                      {syncStatus.isConfigured ? 'Connected & Ready (On-Demand)' : 'On-Demand'}
                     </span>
                   )}
                 </h2>
               </div>
               <p className="text-xs text-gray-600 mt-0.5">
-                Automatically fetches fresh reviews from <strong>{syncStatus.placeName || 'The Bloom and Blossom'}</strong> and displays them on your website's Google Reviews showcase.
+                Fetch fresh reviews on-demand from <strong>{syncStatus.placeName || 'The Bloom and Blossom'}</strong> and update your website's Google Reviews showcase.
               </p>
               {syncStatus.lastSuccessfulSync && (
                 <p className="text-[11px] text-gray-400 mt-1 flex items-center gap-1">

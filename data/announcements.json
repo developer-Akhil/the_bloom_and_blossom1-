@@ -1,0 +1,38 @@
+{
+  "enabled": true,
+  "scrollSpeed": "normal",
+  "pauseOnHover": true,
+  "announcements": [
+    {
+      "id": "ann_1",
+      "text": "Free Shipping on Orders Above Rs 2000",
+      "type": "offer",
+      "badgeText": "FREE SHIPPING",
+      "linkUrl": "/collections",
+      "linkText": "Shop Now",
+      "couponCode": "",
+      "isActive": true,
+      "displayOrder": 1,
+      "startDate": null,
+      "endDate": null,
+      "createdAt": "2026-08-31T06:30:00.000Z",
+      "updatedAt": "2026-08-31T06:30:00.000Z"
+    },
+    {
+      "id": "ann_2",
+      "text": "Check out our Navratri Special",
+      "type": "festival",
+      "badgeText": "NAVRATRI SPECIAL",
+      "linkUrl": "/collections?festival=true",
+      "linkText": "Explore Festive Drops",
+      "couponCode": "",
+      "isActive": true,
+      "displayOrder": 2,
+      "startDate": null,
+      "endDate": null,
+      "createdAt": "2026-08-31T06:30:00.000Z",
+      "updatedAt": "2026-08-31T06:30:00.000Z"
+    }
+  ],
+  "updatedAt": "2026-08-31T13:33:22.765Z"
+}
