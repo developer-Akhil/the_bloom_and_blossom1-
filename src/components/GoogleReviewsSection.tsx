@@ -153,7 +153,11 @@ export function GoogleReviewsSection() {
     : reviews.filter(r => r.source === selectedSource);
 
   // Dynamic counts per category
-  const googleCount = reviews.filter(r => r.source === 'google').length;
+  const googleReviews = reviews.filter(r => r.source === 'google');
+  const googleCount = googleReviews.length;
+  const googleAvgRating = googleCount > 0 
+    ? Number((googleReviews.reduce((sum, r) => sum + r.rating, 0) / googleCount).toFixed(1)) 
+    : 4.5;
   const websiteCount = reviews.filter(r => r.source === 'website').length;
   const instagramCount = reviews.filter(r => r.source === 'instagram').length;
   const trustpilotCount = reviews.filter(r => r.source === 'trustpilot').length;
@@ -203,18 +207,26 @@ export function GoogleReviewsSection() {
 
             {/* Central Rating Badge & Google Logo (Exact Screenshot Match) */}
             <div className="flex flex-col items-center justify-center space-y-1.5 pt-1">
-              <span className="font-bold text-lg text-gray-900">Excellent</span>
+              <span className="font-bold text-lg text-gray-900">
+                {googleCount > 0 ? (googleAvgRating >= 4.5 ? 'Excellent' : 'Very Good') : 'Excellent'}
+              </span>
               
-              {/* 5 Stars */}
+              {/* Stars */}
               <div className="flex items-center space-x-1 text-amber-400">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={22} className="fill-amber-400 text-amber-400" />
+                  <Star 
+                    key={i} 
+                    size={22} 
+                    className={cn(
+                      i < Math.round(googleAvgRating) ? "fill-amber-400 text-amber-400" : "fill-gray-200 text-gray-200"
+                    )} 
+                  />
                 ))}
               </div>
 
               {/* Based on reviews count */}
               <p className="text-xs md:text-sm font-semibold text-gray-500">
-                Based on <span className="text-gray-900 font-bold">34 Reviews</span>
+                Based on <span className="text-gray-900 font-bold">{googleCount} Google {googleCount === 1 ? 'Review' : 'Reviews'}</span> ({reviews.length} Total Verified)
               </p>
 
               {/* Google Brand Logo */}
@@ -263,7 +275,7 @@ export function GoogleReviewsSection() {
             )}
           >
             <GoogleIcon className="w-3.5 h-3.5" />
-            <span>Google ({googleCount > 0 ? googleCount : 34})</span>
+            <span>Google ({googleCount})</span>
           </button>
 
           <button
@@ -276,34 +288,38 @@ export function GoogleReviewsSection() {
             )}
           >
             <ShieldCheck size={14} className="text-bloom-rose shrink-0" />
-            <span>Verified Customers ({websiteCount > 0 ? websiteCount : 48})</span>
+            <span>Verified Customers ({websiteCount})</span>
           </button>
 
-          <button
-            onClick={() => handleTabChange('instagram')}
-            className={cn(
-              "px-4 py-1.5 rounded-full text-xs font-semibold transition-all border flex items-center space-x-1.5",
-              selectedSource === 'instagram'
-                ? "bg-[#E1306C] text-white border-[#E1306C] shadow-sm"
-                : "bg-white text-gray-700 border-gray-200 hover:border-pink-300"
-            )}
-          >
-            <InstagramGradientIcon className="w-3.5 h-3.5" />
-            <span>Instagram Community ({instagramCount > 0 ? instagramCount : 26})</span>
-          </button>
+          {instagramCount > 0 && (
+            <button
+              onClick={() => handleTabChange('instagram')}
+              className={cn(
+                "px-4 py-1.5 rounded-full text-xs font-semibold transition-all border flex items-center space-x-1.5",
+                selectedSource === 'instagram'
+                  ? "bg-[#E1306C] text-white border-[#E1306C] shadow-sm"
+                  : "bg-white text-gray-700 border-gray-200 hover:border-pink-300"
+              )}
+            >
+              <InstagramGradientIcon className="w-3.5 h-3.5" />
+              <span>Instagram Community ({instagramCount})</span>
+            </button>
+          )}
 
-          <button
-            onClick={() => handleTabChange('trustpilot')}
-            className={cn(
-              "px-4 py-1.5 rounded-full text-xs font-semibold transition-all border flex items-center space-x-1.5",
-              selectedSource === 'trustpilot'
-                ? "bg-[#00B67A] text-white border-[#00B67A] shadow-sm"
-                : "bg-white text-gray-700 border-gray-200 hover:border-emerald-300"
-            )}
-          >
-            <TrustpilotIcon className="w-3.5 h-3.5" />
-            <span>Trustpilot ({trustpilotCount > 0 ? trustpilotCount : 18})</span>
-          </button>
+          {trustpilotCount > 0 && (
+            <button
+              onClick={() => handleTabChange('trustpilot')}
+              className={cn(
+                "px-4 py-1.5 rounded-full text-xs font-semibold transition-all border flex items-center space-x-1.5",
+                selectedSource === 'trustpilot'
+                  ? "bg-[#00B67A] text-white border-[#00B67A] shadow-sm"
+                  : "bg-white text-gray-700 border-gray-200 hover:border-emerald-300"
+              )}
+            >
+              <TrustpilotIcon className="w-3.5 h-3.5" />
+              <span>Trustpilot ({trustpilotCount})</span>
+            </button>
+          )}
         </div>
 
         {/* Carousel Container with Left/Right Arrows (Screenshot Match) */}

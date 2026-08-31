@@ -110,7 +110,12 @@ router.put("/:id/status", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const { data: order, error: orderError } = await (supabase as any).schema('bb_ecommerce_sc').from('orders').select('*').eq('id', id).single();
+    const { data: order, error: orderError } = await (supabase as any)
+      .schema('bb_ecommerce_sc')
+      .from('orders')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
     
     if (orderError || !order) {
       console.error('Order fetch error:', orderError);

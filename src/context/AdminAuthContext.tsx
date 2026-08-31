@@ -22,29 +22,34 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
         .select('*')
         .eq('username', username)
         .eq('password', password)
-        .single();
+        .maybeSingle();
 
       if (error) {
-        console.error('Supabase admin login error:', error.message, error.details, error.hint);
         // If error code is 'PGRST116', it means no rows found (invalid credentials)
-        // If it's a permission error, it might be RLS
+        if (error.code === 'PGRST116' || error.message?.includes('0 rows')) {
+          return { 
+            success: false, 
+            error: 'Invalid username or master password' 
+          };
+        }
+        console.error('Supabase admin login error:', error.message);
         return { 
           success: false, 
-          error: error.code === 'PGRST116' ? 'Invalid username or password' : `Database error: ${error.message}`
+          error: `Database error: ${error.message}`
         };
       }
 
       if (!data) {
-        return { success: false, error: 'User not found' };
+        return { success: false, error: 'Invalid username or master password' };
       }
 
       setIsAdminAuthenticated(true);
       sessionStorage.setItem('bloom_admin_authenticated', 'true');
       sessionStorage.setItem('bloom_admin_username', username);
       return { success: true };
-    } catch (err) {
+    } catch (err: any) {
       console.error('Admin login error:', err);
-      return { success: false, error: 'Authorization service unavailable' };
+      return { success: false, error: 'Authorization service unavailable. Please check credentials.' };
     }
   };
 

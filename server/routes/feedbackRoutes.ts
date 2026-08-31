@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import { supabase } from "../services/supabaseService.js";
+import { syncGoogleReviews, getGoogleSyncStatus } from "../services/googleReviewsSync.js";
 
 const router = express.Router();
 
@@ -68,79 +69,28 @@ interface StoreState {
   google_reviews: GoogleReviewData[];
 }
 
-// Initial Seed Data to make the dashboard immediately useful and visually rich
+// Initial Seed Data with genuine reviews only
 const INITIAL_SEED: StoreState = {
-  feedback_requests: [
-    {
-      feedback_request_id: "req_seed_1",
-      customer_id: null,
-      order_id: "BB10025",
-      source: "WEBSITE",
-      feedback_type: "DIRECT",
-      product_id: null,
-      product_name: "Pastel Rainbow Name Headband",
-      customer_name: "Priya Sharma",
-      mobile_number: "+91 9876543210",
-      email_address: "priya.s@example.com",
-      notes: "Website checkout customer",
-      request_status: "COMPLETED",
-      feedback_link_token: "bb_priya_2026",
-      sent_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-      created_at: new Date(Date.now() - 86400000 * 2).toISOString()
-    },
-    {
-      feedback_request_id: "req_seed_2",
-      customer_id: null,
-      order_id: null,
-      source: "INSTAGRAM",
-      feedback_type: "INDIRECT",
-      product_id: null,
-      product_name: "Customised Name Hairband",
-      customer_name: "Rahul Verma",
-      mobile_number: "+91 9811223344",
-      email_address: "rahul.v@example.com",
-      notes: "DM inquiry from Instagram page",
-      request_status: "COMPLETED",
-      feedback_link_token: "bb_rahul_insta",
-      sent_at: new Date(Date.now() - 86400000 * 3).toISOString(),
-      created_at: new Date(Date.now() - 86400000 * 3).toISOString()
-    },
-    {
-      feedback_request_id: "req_seed_3",
-      customer_id: null,
-      order_id: null,
-      source: "WHATSAPP",
-      feedback_type: "INDIRECT",
-      product_id: null,
-      product_name: "Black Pearl Name Bow",
-      customer_name: "Neha Gupta",
-      mobile_number: "+91 9723456789",
-      email_address: null,
-      notes: "WhatsApp order consultation",
-      request_status: "COMPLETED",
-      feedback_link_token: "bb_neha_wa",
-      sent_at: new Date(Date.now() - 86400000 * 1).toISOString(),
-      created_at: new Date(Date.now() - 86400000 * 1).toISOString()
-    },
-    {
-      feedback_request_id: "req_seed_4",
-      customer_id: null,
-      order_id: null,
-      source: "FACEBOOK",
-      feedback_type: "INDIRECT",
-      product_id: null,
-      product_name: "Skyblue Long-Tail Name Bow",
-      customer_name: "Amit Patel",
-      mobile_number: null,
-      email_address: "amit.patel@example.com",
-      notes: "Facebook Messenger query",
-      request_status: "COMPLETED",
-      feedback_link_token: "bb_amit_fb",
-      sent_at: new Date(Date.now() - 86400000 * 4).toISOString(),
-      created_at: new Date(Date.now() - 86400000 * 4).toISOString()
-    }
-  ],
+  feedback_requests: [],
   feedback: [
+    {
+      feedback_id: "fb_laxmi_google",
+      feedback_request_id: null,
+      customer_id: null,
+      order_id: null,
+      feedback_type: "INDIRECT",
+      source: "GOOGLE",
+      rating: 4,
+      comments: "I bought customized name bows for my granddaughter, and they are absolutely beautiful. The quality is very good, and I'm really happy with my purchase.",
+      customer_name: "Laxmi Chand",
+      mobile_number: null,
+      email_address: null,
+      product_name: "Customized Name Bows",
+      submitted_at: "2026-08-30T10:00:00.000Z",
+      status: "ACTIVE",
+      google_review_status: "submitted",
+      google_review_notes: "Google Maps review"
+    },
     {
       feedback_id: "fb_akhil_google",
       feedback_request_id: null,
@@ -154,7 +104,7 @@ const INITIAL_SEED: StoreState = {
       mobile_number: null,
       email_address: null,
       product_name: "Handcrafted Clips Set",
-      submitted_at: new Date().toISOString(),
+      submitted_at: "2026-08-30T08:56:33.331Z",
       status: "ACTIVE",
       google_review_status: "submitted",
       google_review_notes: "Google Maps review"
@@ -176,117 +126,21 @@ const INITIAL_SEED: StoreState = {
       status: "ACTIVE",
       google_review_status: "not_submitted",
       google_review_notes: "Customer feedback via website form"
-    },
-    {
-      feedback_id: "fb_seed_1",
-      feedback_request_id: "req_seed_1",
-      customer_id: null,
-      order_id: "BB10025",
-      feedback_type: "DIRECT",
-      source: "WEBSITE",
-      rating: 5,
-      comments: "The hairband is so beautifully customized! The colors are gorgeous and quality is top-notch. My daughter loves it.",
-      customer_name: "Priya Sharma",
-      mobile_number: "+91 9876543210",
-      email_address: "priya.s@example.com",
-      product_name: "Pastel Rainbow Name Headband",
-      submitted_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-      status: "ACTIVE",
-      google_review_status: "submitted",
-      google_review_notes: "Reviewed with 5 stars on Google Maps"
-    },
-    {
-      feedback_id: "fb_seed_2",
-      feedback_request_id: "req_seed_2",
-      customer_id: null,
-      order_id: null,
-      feedback_type: "INDIRECT",
-      source: "INSTAGRAM",
-      rating: 5,
-      comments: "Ordered directly through Insta DM. Super friendly support and the packaging was lovely!",
-      customer_name: "Rahul Verma",
-      mobile_number: "+91 9811223344",
-      email_address: "rahul.v@example.com",
-      product_name: "Customised Name Hairband",
-      submitted_at: new Date(Date.now() - 86400000 * 3).toISOString(),
-      status: "ACTIVE",
-      google_review_status: "submitted",
-      google_review_notes: "Confirmed Google Review"
-    },
-    {
-      feedback_id: "fb_seed_3",
-      feedback_request_id: "req_seed_3",
-      customer_id: null,
-      order_id: null,
-      feedback_type: "INDIRECT",
-      source: "WHATSAPP",
-      rating: 5,
-      comments: "Quick delivery and the pearls are securely stitched. Very premium feel!",
-      customer_name: "Neha Gupta",
-      mobile_number: "+91 9723456789",
-      email_address: null,
-      product_name: "Black Pearl Name Bow",
-      submitted_at: new Date(Date.now() - 86400000 * 1).toISOString(),
-      status: "ACTIVE",
-      google_review_status: "submitted",
-      google_review_notes: null
-    },
-    {
-      feedback_id: "fb_seed_4",
-      feedback_request_id: "req_seed_4",
-      customer_id: null,
-      order_id: null,
-      feedback_type: "INDIRECT",
-      source: "FACEBOOK",
-      rating: 4,
-      comments: "Loved the embroidery and design. Would love to see more pastel color options in the future.",
-      customer_name: "Amit Patel",
-      mobile_number: null,
-      email_address: "amit.patel@example.com",
-      product_name: "Skyblue Long-Tail Name Bow",
-      submitted_at: new Date(Date.now() - 86400000 * 4).toISOString(),
-      status: "ACTIVE",
-      google_review_status: "not_submitted",
-      google_review_notes: null
-    },
-    {
-      feedback_id: "fb_seed_5",
-      feedback_request_id: null,
-      customer_id: null,
-      order_id: "BB10018",
-      feedback_type: "DIRECT",
-      source: "WEBSITE",
-      rating: 5,
-      comments: "Excellent shopping experience, received on time for my niece's birthday party!",
-      customer_name: "Ananya Roy",
-      mobile_number: "+91 9845012345",
-      email_address: "ananya.r@example.com",
-      product_name: "Red Glitter Name Headband",
-      submitted_at: new Date(Date.now() - 86400000 * 5).toISOString(),
-      status: "ACTIVE",
-      google_review_status: "submitted",
-      google_review_notes: "Google review verified"
-    },
-    {
-      feedback_id: "fb_seed_6",
-      feedback_request_id: null,
-      customer_id: null,
-      order_id: null,
-      feedback_type: "INDIRECT",
-      source: "WALK_IN",
-      rating: 5,
-      comments: "Visited the pop-up stall in Haridwar. The accessories are even prettier in person.",
-      customer_name: "Meera Joshi",
-      mobile_number: "+91 9910022334",
-      email_address: null,
-      product_name: "Scrunchies & Bows Combo",
-      submitted_at: new Date(Date.now() - 86400000 * 6).toISOString(),
-      status: "ACTIVE",
-      google_review_status: "not_submitted",
-      google_review_notes: null
     }
   ],
   google_reviews: [
+    {
+      google_review_id: "gr_laxmi_google",
+      feedback_id: "fb_laxmi_google",
+      feedback_request_id: null,
+      google_review_reference: "Google Review - Laxmi Chand",
+      rating: 4,
+      review_text: "I bought customized name bows for my granddaughter, and they are absolutely beautiful. The quality is very good, and I'm really happy with my purchase.",
+      status: "submitted",
+      review_date: "2026-08-30T10:00:00.000Z",
+      created_at: "2026-08-30T10:00:00.000Z",
+      updated_at: "2026-08-30T10:00:00.000Z"
+    },
     {
       google_review_id: "gr_akhil_google",
       feedback_id: "fb_akhil_google",
@@ -295,57 +149,9 @@ const INITIAL_SEED: StoreState = {
       rating: 5,
       review_text: "I ordered some clips for my Daughter. All were so pretty and eye catching. Good quality and quick delivery.",
       status: "submitted",
-      review_date: new Date().toISOString(),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    },
-    {
-      google_review_id: "gr_seed_1",
-      feedback_id: "fb_seed_1",
-      feedback_request_id: "req_seed_1",
-      google_review_reference: "Google Review #101",
-      rating: 5,
-      review_text: "Top quality customised hair accessories!",
-      status: "submitted",
-      review_date: new Date(Date.now() - 86400000 * 2).toISOString(),
-      created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-      updated_at: new Date(Date.now() - 86400000 * 2).toISOString()
-    },
-    {
-      google_review_id: "gr_seed_2",
-      feedback_id: "fb_seed_2",
-      feedback_request_id: "req_seed_2",
-      google_review_reference: "Google Review #102",
-      rating: 5,
-      review_text: "Great experience ordering via Instagram DM.",
-      status: "submitted",
-      review_date: new Date(Date.now() - 86400000 * 3).toISOString(),
-      created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
-      updated_at: new Date(Date.now() - 86400000 * 3).toISOString()
-    },
-    {
-      google_review_id: "gr_seed_3",
-      feedback_id: "fb_seed_3",
-      feedback_request_id: "req_seed_3",
-      google_review_reference: "Google Review #103",
-      rating: 5,
-      review_text: "Loved the pearl name bow!",
-      status: "submitted",
-      review_date: new Date(Date.now() - 86400000 * 1).toISOString(),
-      created_at: new Date(Date.now() - 86400000 * 1).toISOString(),
-      updated_at: new Date(Date.now() - 86400000 * 1).toISOString()
-    },
-    {
-      google_review_id: "gr_seed_5",
-      feedback_id: "fb_seed_5",
-      feedback_request_id: null,
-      google_review_reference: "Google Review #105",
-      rating: 5,
-      review_text: "Beautiful bows and quick delivery.",
-      status: "submitted",
-      review_date: new Date(Date.now() - 86400000 * 5).toISOString(),
-      created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
-      updated_at: new Date(Date.now() - 86400000 * 5).toISOString()
+      review_date: "2026-08-30T08:56:33.331Z",
+      created_at: "2026-08-30T08:56:33.331Z",
+      updated_at: "2026-08-30T08:56:33.331Z"
     }
   ]
 };
@@ -1008,6 +814,28 @@ router.get("/public", async (_req, res) => {
   } catch (error: any) {
     console.error("[Feedback API] Error loading public reviews feed:", error);
     return res.status(500).json({ error: error.message || "Failed to fetch public reviews" });
+  }
+});
+
+// --------------------------------------------------------------------------
+// 11. Google Reviews Live Sync & Status APIs
+// --------------------------------------------------------------------------
+router.get("/google/status", async (_req, res) => {
+  try {
+    const status = getGoogleSyncStatus();
+    return res.json({ success: true, ...status });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message || "Failed to retrieve sync status" });
+  }
+});
+
+router.post("/google/sync", async (_req, res) => {
+  try {
+    const result = await syncGoogleReviews();
+    return res.json(result);
+  } catch (error: any) {
+    console.error("[Feedback API] Error during manual Google sync trigger:", error);
+    return res.status(500).json({ success: false, message: error.message || "Google review sync failed" });
   }
 });
 

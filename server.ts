@@ -14,6 +14,7 @@ import orderRoutes from "./server/routes/orderRoutes.js";
 import adminRoutes, { handleGetSettings } from "./server/routes/adminRoutes.js";
 import reviewRoutes from "./server/routes/reviewRoutes.js";
 import feedbackRoutes from "./server/routes/feedbackRoutes.js";
+import { startAutomaticGoogleSync } from "./server/services/googleReviewsSync.js";
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -311,6 +312,8 @@ async function startServer() {
 
   const server = app.listen(PORT, "0.0.0.0", () => {
     console.log(`[Server] Server listening on http://localhost:${PORT}`);
+    // Start background Google Reviews sync scheduler
+    startAutomaticGoogleSync();
   });
 
   server.on('error', (error: any) => {

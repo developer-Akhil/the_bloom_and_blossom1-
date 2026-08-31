@@ -99,7 +99,7 @@ router.post("/eligibility", authMiddleware, async (req: AuthenticatedRequest, re
       .from('app_users')
       .select('email')
       .eq('id', user?.userId)
-      .single();
+      .maybeSingle();
 
     if (userErr || !appUser) {
       return res.status(404).json({ error: "User profile not found" });
@@ -191,7 +191,7 @@ router.post("/", authMiddleware, async (req: AuthenticatedRequest, res) => {
       .from('app_users')
       .select('email, full_name')
       .eq('id', user?.userId)
-      .single();
+      .maybeSingle();
 
     const { data: orders } = await (supabase as any)
       .schema('bb_ecommerce_sc')
@@ -328,7 +328,7 @@ router.put("/:id", authMiddleware, async (req: AuthenticatedRequest, res) => {
       .from('product_reviews')
       .select('*')
       .eq('review_id', id)
-      .single();
+      .maybeSingle();
 
     if (origErr || !original) {
       return res.status(404).json({ error: "Review not found" });
@@ -444,7 +444,7 @@ router.delete("/:id", authMiddleware, async (req: AuthenticatedRequest, res) => 
       .from('product_reviews')
       .select('*')
       .eq('review_id', id)
-      .single();
+      .maybeSingle();
 
     if (getErr || !review) {
       return res.status(404).json({ error: "Review not found" });
@@ -619,7 +619,7 @@ router.post("/:id/helpful", authMiddleware, async (req: AuthenticatedRequest, re
       .from('product_reviews')
       .select('helpful_count')
       .eq('review_id', id)
-      .single();
+      .maybeSingle();
 
     const change = voteType === "helpful" ? 1 : -1;
     const newCount = Math.max(0, (original?.helpful_count || 0) + change);
@@ -668,7 +668,7 @@ router.post("/:id/report", authMiddleware, async (req: AuthenticatedRequest, res
       .from('product_reviews')
       .select('report_count')
       .eq('review_id', id)
-      .single();
+      .maybeSingle();
 
     const newReportCount = (original?.report_count || 0) + 1;
 
@@ -763,7 +763,7 @@ router.put("/admin/:id/approve", async (req, res) => {
       .update({ status: 'approved', updated_at: new Date().toISOString() })
       .eq('review_id', id)
       .select('*, user:app_users(full_name, email)')
-      .single();
+      .maybeSingle();
 
     if (updateErr) return handleDbError(updateErr, res);
 
@@ -794,7 +794,7 @@ router.put("/admin/:id/reject", async (req, res) => {
       .update({ status: 'rejected', updated_at: new Date().toISOString() })
       .eq('review_id', id)
       .select('*, user:app_users(full_name, email)')
-      .single();
+      .maybeSingle();
 
     if (updateErr) return handleDbError(updateErr, res);
 
@@ -866,7 +866,7 @@ router.post("/admin/:id/reply", async (req, res) => {
       .update({ admin_reply: reply, updated_at: new Date().toISOString() })
       .eq('review_id', id)
       .select('*, user:app_users(full_name, email)')
-      .single();
+      .maybeSingle();
 
     if (updateErr) return handleDbError(updateErr, res);
 

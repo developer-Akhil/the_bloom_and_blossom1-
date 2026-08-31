@@ -1,0 +1,13 @@
+{
+  "lastSyncAttempt": "2026-08-31T11:48:51.194Z",
+  "lastSuccessfulSync": null,
+  "status": "standby",
+  "errorMessage": "Google Cloud billing link is required to enable live API polling. All existing customer reviews remain fully active on your store.",
+  "rating": 4.5,
+  "userRatingCount": 2,
+  "placeName": "The Bloom and Blossom",
+  "placeUrl": "https://www.google.com/search?q=the+bloom+and+blossom#lrd=0x390947db0dc7d7db:0x55e61aac6cb14f5f,3,,,,",
+  "reviewsCount": 2,
+  "isConfigured": true,
+  "billingRequired": true
+}

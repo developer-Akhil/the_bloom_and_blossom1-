@@ -6,7 +6,6 @@ import { ProductCard } from './Home';
 import { Package, Heart, Clock, Settings, LogOut, ChevronRight } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 
 export function Dashboard() {
   const products = useDynamicProducts(baseProducts);
@@ -25,31 +24,36 @@ export function Dashboard() {
       const fetchOrders = async () => {
         setIsLoadingOrders(true);
         try {
-          const userEmail = user?.email || (user?.user_metadata as any)?.email || '';
+          const userEmail = (user?.email || (user?.user_metadata as any)?.email || '').toLowerCase().trim();
+          const userPhone = (user?.phone || (user?.user_metadata as any)?.phone || '').trim();
+          const userId = user?.id;
           
-          const { data, error } = await supabase
-            .from('orders')
-            .select('*')
-            .or(`user_id.eq.${user.id},guest_email.eq.${userEmail}`)
-            .order('created_at', { ascending: false });
-          
-          if (error) {
-            console.error("Dashboard fetch orders error: ", error);
-          }
-
           let fetchedOrders: any[] = [];
-          if (!error && data) {
-            fetchedOrders = [...data];
+          
+          try {
+            const res = await fetch('/api/orders');
+            if (res.ok) {
+              const resData = await res.json();
+              if (Array.isArray(resData.orders)) {
+                fetchedOrders = resData.orders.filter((o: any) => {
+                  if (userId && o.user_id === userId) return true;
+                  if (userEmail && o.guest_email && o.guest_email.toLowerCase().trim() === userEmail) return true;
+                  if (userPhone && o.guest_phone && o.guest_phone.trim() === userPhone) return true;
+                  return false;
+                });
+              }
+            }
+          } catch (apiErr) {
+            console.warn("Could not load /api/orders:", apiErr);
           }
           
-          // Also check local storage for prototype testing / failed inserts
+          // Also check local storage for prototype testing / offline orders
           try {
             const mockOrdersDB = JSON.parse(localStorage.getItem('bloom_db_orders') || '[]');
-            const userEmail = user?.email || (user?.user_metadata as any)?.email || '';
             const mockOrders = mockOrdersDB.filter((o: any) => 
-                 o.userId === user?.id || 
-                 (userEmail && o.email?.toLowerCase() === userEmail?.toLowerCase()) || 
-                 (user?.phone && o.phone === user?.phone)
+                 (userId && o.userId === userId) || 
+                 (userEmail && o.email?.toLowerCase() === userEmail) || 
+                 (userPhone && o.phone === userPhone)
             ).map((o: any) => ({
                id: o.orderId || 'MANUAL-' + Math.random().toString(36).substr(2, 6),
                order_status: 'Processing',
@@ -71,7 +75,7 @@ export function Dashboard() {
           
           setOrders(fetchedOrders);
         } catch (err) {
-          console.error("Error fetching orders:", err);
+          console.warn("Error fetching dashboard orders:", err);
         } finally {
           setIsLoadingOrders(false);
         }

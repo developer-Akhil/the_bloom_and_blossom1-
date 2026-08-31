@@ -255,7 +255,7 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
            setIsServerLoaded(true);
         }
 
-        const { data: storeData } = await supabase.from('store_settings').select('*').eq('key', 'festival_config').single();
+        const { data: storeData } = await supabase.from('store_settings').select('*').eq('key', 'festival_config').maybeSingle();
         if (storeData && storeData.value) {
           const conf = storeData.value;
           setFestivalConfig({
