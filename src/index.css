@@ -100,29 +100,37 @@
   animation: float 6s ease-in-out infinite;
 }
 
-section {
-  content-visibility: auto;
-  contain-intrinsic-size: 1px 1000px;
-}
-
+/* Mobile touch scroll and rendering optimizations */
 @layer base {
   html {
     -webkit-tap-highlight-color: transparent;
-    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    -webkit-overflow-scrolling: touch;
+    touch-action: manipulation;
+  }
+
+  body {
+    -webkit-overflow-scrolling: touch;
   }
 }
 
-/* Custom scrollbar for mobile optimization */
+/* Custom scrollbar for mobile & desktop optimization */
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-transparent;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-bloom-rose/20 rounded-full;
+  background: rgba(212, 163, 115, 0.35);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 163, 115, 0.6);
 }
 
 @media (max-width: 640px) {
@@ -167,26 +175,41 @@ section {
 }
 
 @keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
+  0% { transform: translate3d(0%, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
 }
 
 .animate-marquee {
   display: flex;
   width: max-content;
-  animation: marquee 28s linear infinite;
+  animation: marquee 22s linear infinite;
+  will-change: transform;
 }
 
 .animate-marquee-slow {
   display: flex;
   width: max-content;
-  animation: marquee 40s linear infinite;
+  animation: marquee 32s linear infinite;
+  will-change: transform;
 }
 
 .animate-marquee-fast {
   display: flex;
   width: max-content;
-  animation: marquee 18s linear infinite;
+  animation: marquee 14s linear infinite;
+  will-change: transform;
+}
+
+@media (max-width: 640px) {
+  .animate-marquee {
+    animation-duration: 20s;
+  }
+  .animate-marquee-slow {
+    animation-duration: 28s;
+  }
+  .animate-marquee-fast {
+    animation-duration: 12s;
+  }
 }
 
 .animate-marquee:hover,

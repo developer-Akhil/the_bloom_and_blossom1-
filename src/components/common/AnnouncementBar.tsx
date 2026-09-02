@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Truck, Tag, Flame, ArrowRight, Copy, Check, ChevronLeft, ChevronRight, Bell } from 'lucide-react';
+import { Sparkles, Truck, Tag, Flame, ArrowRight, Copy, Check, Bell } from 'lucide-react';
 import { AnnouncementItem, AnnouncementSettings } from '../../types';
 
 // Safe default fallback banner in case network is initialising or offline
@@ -50,7 +50,6 @@ export function AnnouncementBar() {
   const [data, setData] = useState<AnnouncementSettings>(DEFAULT_ANNOUNCEMENTS);
   const [loading, setLoading] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -85,17 +84,6 @@ export function AnnouncementBar() {
   }, []);
 
   const announcements = data?.announcements || [];
-
-  // Auto-advance for compact mode or focus navigation
-  useEffect(() => {
-    if (announcements.length <= 1 || isPaused) return;
-
-    const timer = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % announcements.length);
-    }, 5000);
-
-    return () => clearInterval(timer);
-  }, [announcements.length, isPaused]);
 
   if (loading || !data?.enabled || announcements.length === 0) {
     return null;
@@ -216,12 +204,14 @@ export function AnnouncementBar() {
       className="relative z-50 w-full overflow-hidden bg-gradient-to-r from-[#4c0519] via-[#881337] to-[#4c0519] text-white shadow-xs border-b border-rose-900/40 select-none"
       onMouseEnter={() => data.pauseOnHover && setIsPaused(true)}
       onMouseLeave={() => data.pauseOnHover && setIsPaused(false)}
+      onTouchStart={() => data.pauseOnHover && setIsPaused(true)}
+      onTouchEnd={() => data.pauseOnHover && setIsPaused(false)}
       ref={containerRef}
     >
-      {/* Desktop / Tablet Continuous Marquee Scroll */}
-      <div className="hidden sm:flex relative items-center overflow-hidden py-1.5">
+      {/* Continuous Marquee Scroll for Mobile, Tablet & Desktop */}
+      <div className="relative flex items-center overflow-hidden py-1.5 md:py-2">
         <div 
-          className={`flex shrink-0 items-center gap-8 ${isPaused ? '' : speedClass}`}
+          className={`flex shrink-0 items-center gap-6 md:gap-8 ${isPaused ? '' : speedClass}`}
           style={{ willChange: 'transform' }}
         >
           {/* Render duplicated list for seamless infinite loop */}
@@ -230,33 +220,6 @@ export function AnnouncementBar() {
           {announcements.map((item) => renderAnnouncementContent(item))}
           {announcements.map((item) => renderAnnouncementContent(item))}
         </div>
-      </div>
-
-      {/* Mobile Optimized View: Single Item with Navigation & Slide */}
-      <div className="flex sm:hidden items-center justify-between px-2 py-1.5">
-        {announcements.length > 1 && (
-          <button
-            onClick={() => setActiveIndex((prev) => (prev - 1 + announcements.length) % announcements.length)}
-            aria-label="Previous announcement"
-            className="p-1 text-white/70 hover:text-white rounded-full transition-colors active:scale-90"
-          >
-            <ChevronLeft size={16} />
-          </button>
-        )}
-
-        <div className="flex-1 overflow-hidden text-center flex justify-center">
-          {renderAnnouncementContent(announcements[activeIndex], true)}
-        </div>
-
-        {announcements.length > 1 && (
-          <button
-            onClick={() => setActiveIndex((prev) => (prev + 1) % announcements.length)}
-            aria-label="Next announcement"
-            className="p-1 text-white/70 hover:text-white rounded-full transition-colors active:scale-90"
-          >
-            <ChevronRight size={16} />
-          </button>
-        )}
       </div>
     </aside>
   );
